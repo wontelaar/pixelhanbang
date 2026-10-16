@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>300dpi 요구할 때 해상도·DPI·픽셀 계산법 | 픽셀한방</title>
+  <meta name="description" content="인쇄소나 제출처가 300dpi를 요구할 때 무엇을 확인해야 할까요? 픽셀, DPI, 인화 크기의 관계와 계산식, A4·사진 인화 크기별 필요한 픽셀 수, DPI 숫자만 바꾸면 안 되는 이유를 정리합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/dpi-resolution-guide.html">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"300dpi 요구할 때 해상도·DPI·픽셀 계산법","datePublished":"2026-10-16","dateModified":"2026-10-16","author":{"@type":"Person","name":"픽셀한방 운영자"},"publisher":{"@type":"Organization","name":"픽셀한방"},"mainEntityOfPage":"https://pixelhanbang.com/dpi-resolution-guide.html"}</script>
+</head>
+<body data-page="dpi-resolution-guide">
+  <header id="siteHeader"></header>
+  <main class="page-shell legal-page guide-page">
+    <span class="eyebrow">해상도 기초</span>
+    <h1>300dpi 요구할 때: 해상도·DPI·픽셀과 인화 크기</h1>
+    <p class="lead">“300dpi 이상 파일로 보내 주세요”라는 요청을 받으면 파일 속 숫자를 바꿔야 하는지, 사진을 크게 만들어야 하는지 헷갈립니다. 핵심은 하나입니다. 인쇄 품질을 결정하는 것은 사진이 가진 픽셀 수이고, DPI는 그 픽셀을 종이에 얼마나 촘촘하게 찍을지 정하는 값입니다.</p>
+    <p class="article-meta">작성·점검 2026년 10월 · 픽셀한방 운영자</p>
+
+    <section class="article-summary">
+      <h2>핵심 요약</h2>
+      <ul>
+        <li><strong>계산식:</strong> 필요한 픽셀 = 인쇄 크기(인치) × DPI. cm라면 cm ÷ 2.54 × DPI입니다.</li>
+        <li><strong>300dpi의 실제 의미:</strong> 원하는 인쇄 크기에서 1인치당 300픽셀이 나올 만큼 픽셀이 충분해야 한다는 뜻입니다.</li>
+        <li><strong>DPI 숫자만 바꾸면:</strong> 픽셀은 그대로라 선명도는 달라지지 않습니다.</li>
+        <li><strong>화면용 파일:</strong> 웹·모바일에서는 DPI 값이 거의 의미가 없고 픽셀 크기만 중요합니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>픽셀, DPI, 인쇄 크기의 관계</h2>
+      <p>디지털 사진은 작은 색 점인 픽셀이 가로·세로로 늘어선 것입니다. 예를 들어 가로 3000px, 세로 2000px 사진은 600만 개의 점으로 이루어져 있습니다. 이 사진을 종이에 인쇄할 때 1인치(2.54cm)에 몇 개의 픽셀을 배치할지가 DPI(정확히는 PPI)입니다.</p>
+      <p>같은 3000 × 2000px 사진이라도 300DPI로 인쇄하면 10 × 6.7인치(약 25.4 × 16.9cm)가 되고, 150DPI로 인쇄하면 두 배 크기인 20 × 13.3인치가 됩니다. 크게 인쇄할수록 1인치에 들어가는 픽셀이 줄어들어 가까이서 보면 거칠어집니다. 즉 픽셀 수가 정해져 있으면 DPI와 인쇄 크기는 서로 맞바꾸는 관계입니다.</p>
+      <div class="callout"><strong>DPI와 PPI</strong><p>엄밀히는 이미지 파일의 밀도는 PPI(pixels per inch), 프린터가 잉크 점을 찍는 밀도는 DPI(dots per inch)입니다. 하지만 인쇄소와 제출 안내에서는 두 말을 같은 뜻으로 쓰는 경우가 대부분이므로, “300dpi”는 “인쇄 크기 기준 1인치당 300픽셀”로 이해하면 됩니다.</p></div>
+    </section>
+
+    <section>
+      <h2>인쇄 크기별로 필요한 픽셀 수</h2>
+      <p>아래는 300DPI 기준 계산값입니다. 가지고 있는 사진의 픽셀 수가 이 값과 같거나 크면 해당 크기로 300DPI 인쇄가 가능합니다.</p>
+      <div class="table-scroll"><table class="comparison-table">
+        <thead><tr><th>인쇄 크기</th><th>300DPI에 필요한 픽셀</th><th>150DPI일 때</th></tr></thead>
+        <tbody>
+          <tr><th>4 × 6인치 (약 10 × 15cm)</th><td>1200 × 1800px</td><td>600 × 900px</td></tr>
+          <tr><th>5 × 7인치 (약 13 × 18cm)</th><td>1500 × 2100px</td><td>750 × 1050px</td></tr>
+          <tr><th>A4 (210 × 297mm)</th><td>약 2480 × 3508px</td><td>약 1240 × 1754px</td></tr>
+          <tr><th>A3 (297 × 420mm)</th><td>약 3508 × 4961px</td><td>약 1754 × 2480px</td></tr>
+        </tbody>
+      </table></div>
+      <p>최근 휴대폰 카메라 원본은 A4를 300DPI로 인쇄하기에 충분한 픽셀을 가진 경우가 많습니다. 문제는 메신저로 주고받거나 웹에서 내려받는 과정에서 사진이 작아진 경우입니다. 이런 파일은 원본을 다시 구하는 것이 가장 좋은 해결책입니다.</p>
+    </section>
+
+    <section>
+      <h2>DPI 숫자만 바꾸면 안 되는 이유</h2>
+      <p>편집 프로그램에서 해상도를 72에서 300으로 바꾸는 방법은 두 가지입니다. 픽셀 수를 그대로 두고 숫자만 바꾸면, 파일에 적힌 ‘권장 인쇄 크기’만 작아질 뿐 사진의 세부는 전혀 달라지지 않습니다. 반대로 인쇄 크기를 고정한 채 300으로 바꾸면 프로그램이 픽셀을 새로 만들어 끼워 넣는데, 이는 확대와 같아서 원래 없던 세부가 생기지는 않습니다.</p>
+      <p>그래서 “300dpi로 바꿔 주세요”라는 요청을 받으면 먼저 원하는 인쇄 크기를 묻고, 그 크기에 필요한 픽셀을 위 계산으로 확인하는 것이 순서입니다. 픽셀이 충분하다면 대부분 숫자 표시만 맞추면 되고, 부족하다면 인쇄 크기를 줄이거나 더 큰 원본을 찾아야 합니다.</p>
+    </section>
+
+    <section>
+      <h2>인쇄소가 DPI 표시값까지 확인할 때</h2>
+      <p>일부 인쇄소나 접수 시스템은 파일 속에 기록된 DPI 값 자체를 검사합니다. 이 경우 픽셀이 충분한 파일을 사진 편집 프로그램의 이미지 크기 메뉴에서 ‘리샘플링(다시 계산)’을 끄고 해상도 값만 300으로 바꿔 저장하면 됩니다. 프로그램마다 메뉴 이름은 다를 수 있습니다.</p>
+      <p>픽셀한방의 크기 변경 도구는 가로·세로 픽셀 수를 바꾸는 도구이며 DPI 값을 지정하는 기능은 없습니다. 픽셀 수를 인쇄 크기에 맞춰 준비하는 단계에 쓰고, DPI 표시값이 필요하다면 인쇄소 안내에 따라 마지막에 맞추세요.</p>
+      <p class="inline-tools"><a href="resize.html">사진 크기 변경</a></p>
+    </section>
+
+    <section>
+      <h2>화면용·웹용 파일에서는 DPI를 신경 쓰지 않아도 됩니다</h2>
+      <p>홈페이지, 쇼핑몰, SNS, 온라인 지원서처럼 화면에 보이는 이미지는 DPI 값과 관계없이 픽셀 크기대로 표시됩니다. 72DPI 파일과 300DPI 파일이라도 픽셀 수가 같다면 화면에서는 똑같이 보이고 파일 용량도 거의 같습니다. 온라인 제출에서 “300dpi”가 함께 적혀 있더라도 실제로 검사하는 것은 픽셀 크기와 용량인 경우가 많으니, 제출 기준을 꼼꼼히 확인하세요.</p>
+      <p class="inline-tools"><a href="document-photo-size-guide.html">제출용 사진 크기 맞추기</a></p>
+    </section>
+
+    <section>
+      <h2>자주 묻는 질문</h2>
+      <div class="faq">
+        <details><summary>작은 사진을 2배로 키우면 300dpi 인쇄가 되나요?</summary><p>숫자상 픽셀은 늘어나지만 원래 사진에 없던 세부가 생기지는 않습니다. 약간의 선명 보정으로 덜 흐려 보이게 할 수는 있어도, 가능하면 더 큰 원본을 사용하세요.</p></details>
+        <details><summary>72dpi 사진은 화질이 나쁜 사진인가요?</summary><p>그렇지 않습니다. DPI 값은 인쇄 크기 기준을 적어 둔 정보일 뿐이고, 화질은 픽셀 수와 압축 상태가 결정합니다.</p></details>
+        <details><summary>인쇄용 파일은 JPG와 PNG 중 무엇이 좋나요?</summary><p>인쇄소가 지정한 형식을 따르세요. 지정이 없다면 사진은 높은 화질의 JPG가 무난하고, 로고처럼 선이 또렷해야 하는 이미지는 PNG가 적합합니다.</p></details>
+      </div>
+    </section>
+
+    <section>
+      <h2>관련 도구와 가이드</h2>
+      <p class="inline-tools"><a href="resize.html">사진 크기 변경</a><a href="photo-format-guide.html">사진 형식 고르기</a><a href="document-photo-size-guide.html">서류 제출용 사진 맞추기</a><a href="png-file-size-guide.html">PNG 용량이 큰 이유</a></p>
+    </section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script>
+</body>
+</html>

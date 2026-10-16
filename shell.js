@@ -57,6 +57,7 @@
       <div class="footer-inner">
         <div>© ${new Date().getFullYear()} 픽셀한방 · 파일은 기기 안에서만 처리됩니다.</div>
         <div class="footer-links">
+          <a href="guides.html">가이드 모음</a>
           <a href="photo-format-guide.html">사진 형식 가이드</a>
           <a href="shopping-photo-guide.html">상품사진 가이드</a>
           <a href="sns-image-guide.html">SNS 이미지 가이드</a>
