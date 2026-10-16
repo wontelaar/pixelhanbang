@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>원형 프로필 사진 만들기 - 무료 동그라미 자르기 | 픽셀한방</title>
+  <meta name="description" content="사진을 직접 움직이고 확대·축소해 원 안에 맞춘 뒤, 빈 공간을 사진 배경색·투명·흰색으로 채워 원형 프로필 PNG를 만드세요.">
+  <link rel="canonical" href="https://pixelhanbang.com/circle-profile.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="circle-profile">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">원형 프로필</span>
+      <h1>사진을 원 안에 딱 맞게</h1>
+      <p class="lead">사진을 직접 움직이고 확대·축소해서 카톡·인스타 프로필용 원형 사진을 만들어요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="원형 프로필 만들기 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>프로필로 만들 사진을 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 한 장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp">
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="profileEditorWrap" class="profile-editor-wrap">
+          <div id="profileStage" class="profile-stage" role="application" tabindex="0" aria-label="사진 위치 조절 영역">
+            <canvas id="profileCanvas" width="720" height="720"></canvas>
+          </div>
+          <p class="profile-help">사진을 손가락이나 마우스로 움직여 원 안에 맞춰 주세요.</p>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>프로필 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="zoom">사진 크기</label>
+          <div class="range-row">
+            <input id="zoom" type="range" min="20" max="400" value="100" aria-label="사진 확대 및 축소" disabled>
+            <span id="zoomValue" class="range-value">100%</span>
+          </div>
+          <div class="inline-actions"><button id="resetButton" class="button button-ghost" type="button" disabled>가운데로 맞추기</button></div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="outside">배경</label>
+          <select id="outside">
+            <option value="transparent">투명</option>
+            <option value="white">흰색</option>
+            <option value="photo" selected>사진 배경색</option>
+          </select>
+          <div id="photoColorRow" class="color-choice-row photo-color-row">
+            <input id="photoColor" type="color" value="#ffffff" aria-label="사진 배경색 조절">
+            <span id="photoColorValue">#FFFFFF</span>
+          </div>
+          <p id="backgroundHint" class="setting-hint">사진 가장자리 색으로 원 안의 빈 공간을 채워요. 원 밖은 투명하게 저장돼요.</p>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="borderCount">테두리</label>
+          <select id="borderCount">
+            <option value="0" selected>없음</option>
+            <option value="1">한 줄</option>
+            <option value="2">두 줄</option>
+          </select>
+          <div id="borderControls" class="border-controls hidden">
+            <div class="border-control">
+              <label for="borderMode">사진과 테두리</label>
+              <select id="borderMode">
+                <option value="overlay" selected>사진 위에 테두리</option>
+                <option value="frame">액자형 · 사진을 안쪽에</option>
+              </select>
+            </div>
+            <div class="border-control">
+              <label for="outerBorderWidth">바깥 테두리</label>
+              <div class="border-control-row">
+                <input id="outerBorderColor" type="color" value="#ffffff" aria-label="바깥 테두리 색상">
+                <input id="outerBorderWidth" type="range" min="2" max="50" value="12" aria-label="바깥 테두리 굵기">
+                <span id="outerBorderWidthValue" class="range-value">12px</span>
+              </div>
+            </div>
+            <div id="innerBorderControl" class="border-control hidden">
+              <label for="innerBorderWidth">안쪽 테두리</label>
+              <div class="border-control-row">
+                <input id="innerBorderColor" type="color" value="#2563eb" aria-label="안쪽 테두리 색상">
+                <input id="innerBorderWidth" type="range" min="2" max="50" value="12" aria-label="안쪽 테두리 굵기">
+                <span id="innerBorderWidthValue" class="range-value">12px</span>
+              </div>
+            </div>
+            <div id="borderGapControl" class="border-control hidden">
+              <label for="borderGap">두 줄 사이 간격</label>
+              <div class="border-control-row border-gap-row">
+                <input id="borderGap" type="range" min="0" max="100" value="30" aria-label="두 테두리 사이 간격">
+                <span id="borderGapValue" class="range-value">30px</span>
+              </div>
+            </div>
+          </div>
+          <p class="setting-hint">액자형은 사진이 가장 안쪽 테두리를 넘지 않아 두 줄 사이가 깔끔하게 보여요.</p>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="outputSize">저장 크기</label>
+          <select id="outputSize">
+            <option value="500">500 × 500</option>
+            <option value="800">800 × 800</option>
+            <option value="1080" selected>1080 × 1080</option>
+          </select>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>원형 프로필 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+
+    <section class="content-section">
+      <h2>원형 프로필 만드는 방법</h2>
+      <ol class="steps">
+        <li>프로필로 사용할 사진 한 장을 선택하세요.</li>
+        <li>사진을 움직이고 확대·축소해 얼굴이나 상품을 원 안에 맞추세요.</li>
+        <li>배경을 고르고, 필요하면 테두리를 한 줄 또는 두 줄로 꾸며 저장하세요.</li>
+      </ol>
+    </section>
+    <section class="content-section">
+      <h2>배경 선택의 차이</h2>
+      <p><strong>사진 배경색</strong>은 사진 가장자리에서 비슷한 색을 찾아 원 안의 빈 부분을 채우고 원 밖은 투명하게 저장합니다. <strong>투명</strong>은 모든 빈 부분을 비워 두고, <strong>흰색</strong>은 빈 부분과 원 밖을 흰색으로 채웁니다. 모든 결과는 화질 손실을 줄인 PNG로 저장됩니다.</p>
+    </section>
+    <section class="content-section">
+      <h2>자주 묻는 질문</h2>
+      <div class="faq">
+        <details><summary>카카오톡 프로필에 바로 쓸 수 있나요?</summary><p>네. 저장된 정사각형 PNG의 가운데에 원형 사진이 배치되어 카카오톡, 인스타그램 등 프로필 이미지로 사용할 수 있습니다.</p></details>
+        <details><summary>사진 원본도 동그랗게 바뀌나요?</summary><p>아니요. 원본은 그대로 유지되고 원형으로 만든 새 PNG 파일만 저장됩니다.</p></details>
+        <details><summary>테두리 두 줄의 간격도 바꿀 수 있나요?</summary><p>네. 테두리를 두 줄로 선택하면 각 테두리의 색상과 굵기, 두 줄 사이 간격을 따로 조절할 수 있습니다.</p></details>
+        <details><summary>액자형은 일반 테두리와 무엇이 다른가요?</summary><p>일반 테두리는 사진 위에 선을 표시하고, 액자형은 사진을 가장 안쪽 테두리 안에만 보여 두 줄 사이로 사진이 비치지 않습니다.</p></details>
+        <details><summary>투명으로 저장했는데 사각형으로 보이는 이유는 무엇인가요?</summary><p>이미지 파일의 틀은 사각형이지만 원 밖의 픽셀이 투명하게 저장됩니다. 투명을 지원하지 않는 앱에서는 흰색이나 검정색으로 보일 수 있습니다.</p></details>
+      </div>
+    </section>
+  </main>
+  <footer id="siteFooter"></footer>
+  <script src="shell.js"></script>
+  <script src="circle-profile.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4b49c942c7bea0c',t:'MTc5MjEyNzk5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

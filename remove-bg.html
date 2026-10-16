@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 배경 투명하게 - 단색 배경 제거 무료 | 픽셀한방</title>
+  <meta name="description" content="흰색, 검정, 파랑 등 단색 사진 배경을 투명하게 지우고 PNG로 저장하세요. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/remove-bg.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="remove-bg">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">배경 투명하게</span>
+      <h1>사진 배경을 투명하게</h1>
+      <p class="lead">흰색부터 검정·파랑까지 단색 배경을 지우고 투명 PNG로 저장해요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="사진 배경 투명화 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>사진을 끌어놓거나 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 최대 20장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="previewWrap" class="preview-wrap">
+          <div class="preview-head">
+            <strong>첫 번째 사진 미리보기</strong>
+            <span>체크무늬는 투명한 부분이에요</span>
+          </div>
+          <div id="previewStage" class="transparent-stage" role="button" tabindex="0" aria-label="미리보기를 눌러 제거할 배경색 선택" aria-describedby="selectedColorNote">
+            <canvas id="previewCanvas"></canvas>
+          </div>
+          <p id="selectedColorNote" class="selected-color-note">사진을 누르면 제거할 배경색을 직접 고를 수 있어요.</p>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>배경 제거 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="backgroundMode">배경색</label>
+          <div class="background-controls">
+            <select id="backgroundMode">
+              <option value="auto">사진마다 자동으로 찾기</option>
+              <option value="manual">직접 선택한 색 지우기</option>
+            </select>
+            <input id="backgroundColor" type="color" value="#ffffff" aria-label="직접 선택할 배경색" disabled>
+          </div>
+          <p class="setting-hint">미리보기 사진을 눌러도 배경색을 선택할 수 있어요.</p>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="tolerance">제거 강도</label>
+          <div class="range-row">
+            <input id="tolerance" type="range" min="5" max="100" value="35">
+            <span id="toleranceValue" class="range-value">35</span>
+          </div>
+          <p class="setting-hint">배경이 남으면 높이고, 상품까지 지워지면 낮춰 주세요.</p>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>배경 투명하게 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+
+    <section class="content-section">
+      <h2>배경을 투명하게 만드는 방법</h2>
+      <ol class="steps">
+        <li>단색 배경으로 촬영한 사진을 최대 20장까지 선택하세요.</li>
+        <li>자동 인식 결과를 확인하고 필요하면 사진을 눌러 배경색과 제거 강도를 조절하세요.</li>
+        <li>‘배경 투명하게 저장’을 누르면 투명 PNG가 저장됩니다.</li>
+      </ol>
+    </section>
+    <section class="content-section">
+      <h2>어떤 사진에 잘 맞나요?</h2>
+      <p>흰 벽이나 촬영지, 검정 천, 파란 스크린처럼 색이 고르게 이어진 배경에 잘 맞습니다. 사진 가장자리와 연결된 배경부터 지우므로 상품 안쪽에 같은 색이 있어도 지워질 가능성을 줄였습니다.</p>
+    </section>
+    <section class="content-section">
+      <h2>사용 전 알아두세요</h2>
+      <p>풍경이나 방 안처럼 여러 색과 무늬가 섞인 배경은 깔끔하게 제거하기 어렵습니다. 상품이 사진 가장자리에 닿아 있거나 배경색과 매우 비슷하면 일부가 함께 지워질 수 있으니 미리보기에서 제거 강도를 조절해 주세요.</p>
+    </section>
+    <section class="content-section">
+      <h2>자주 묻는 질문</h2>
+      <div class="faq">
+        <details><summary>흰색 배경만 지울 수 있나요?</summary><p>아니요. 자동으로 사진의 배경색을 찾거나 미리보기에서 원하는 색을 직접 선택할 수 있어 검정, 회색, 파랑 등 다양한 단색 배경을 지울 수 있습니다.</p></details>
+        <details><summary>여러 장을 한꺼번에 처리할 수 있나요?</summary><p>최대 20장까지 가능하며 자동 인식을 선택하면 사진마다 배경색을 따로 찾아 처리합니다. 여러 장의 결과는 하나의 ZIP 파일로 저장됩니다.</p></details>
+        <details><summary>결과 파일은 어떤 형식인가요?</summary><p>투명 영역을 지원하는 PNG 형식으로 저장됩니다. 원본 사진은 변경되지 않습니다.</p></details>
+        <details><summary>사진이 서버에 저장되나요?</summary><p>아니요. 사진은 사용 중인 브라우저 안에서만 처리하며 사이트 서버로 전송하거나 보관하지 않습니다.</p></details>
+      </div>
+    </section>
+  </main>
+  <footer id="siteFooter"></footer>
+  <script src="shell.js"></script>
+  <script src="remove-bg.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4b49ca58d7de106',t:'MTc5MjEyODAwMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 크기 변경 - 여러 이미지 픽셀 일괄 변환 | 픽셀한방</title>
+  <meta name="description" content="JPG, PNG, WebP 사진의 가로 세로 픽셀을 무료로 변경하세요. 최대 30장 일괄 처리와 ZIP 저장을 지원합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/resize.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="resize">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">사진 크기 변경</span>
+      <h1>원하는 픽셀로 정확하게</h1>
+      <p class="lead">여러 사진을 같은 크기로 바꾸거나 원본 비율을 유지해 줄일 수 있어요.</p>
+      <div class="privacy-note">사진은 기기 안에서만 처리돼요</div>
+    </section>
+    <section class="workspace" aria-label="사진 크기 변경 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0"><div><div class="drop-icon">＋</div><strong>사진을 끌어놓거나 선택하세요</strong><p>JPG, PNG, WebP · 최대 30장</p><button id="chooseButton" class="button button-secondary" type="button">사진 선택</button><input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp"></div></div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+      </div>
+      <aside class="panel settings-panel">
+        <h2>변경 설정</h2>
+        <div class="setting-group"><label class="setting-label" for="width">결과 크기</label><div class="input-row"><input id="width" type="number" min="1" max="8000" placeholder="가로"><span>×</span><input id="height" type="number" min="1" max="8000" placeholder="세로"></div><label class="check-row"><input id="keepRatio" type="checkbox" checked> 원본 비율 유지</label></div>
+        <div class="setting-group"><label class="setting-label" for="doubleSizeButton">고화질 확대</label><button id="doubleSizeButton" class="button button-secondary button-wide" type="button" disabled>원본의 2배로 확대</button><p id="doubleSizeHint" class="setting-hint">예: 500 × 500 → 1000 × 1000</p><label class="check-row"><input id="highQualityUpscale" type="checkbox" checked> 확대할 때 선명하게 보정</label></div>
+        <div class="setting-group"><label class="setting-label" for="format">저장 형식</label><select id="format"><option value="same">원본 형식 유지</option><option value="jpg">JPG</option><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+        <div class="setting-group"><label class="setting-label" for="quality">화질</label><div class="range-row"><input id="quality" type="range" min="30" max="100" value="90"><span id="qualityValue" class="range-value">90%</span></div></div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>크기 변경하고 저장</button><p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+    <nav data-tool-links></nav>
+    <section class="content-section"><h2>언제 필요한가요?</h2><p>쇼핑몰 대표이미지, 블로그 썸네일, 제출용 증명사진처럼 픽셀 규격이 정해진 곳에 이미지를 올릴 때 편리합니다. 원본 비율을 유지하면 사진이 찌그러지는 것을 줄일 수 있습니다.</p></section>
+    <section class="content-section"><h2>사용 순서</h2><ol class="steps"><li>변경할 사진을 선택합니다.</li><li>가로와 세로 픽셀을 입력합니다.</li><li>결과 형식과 화질을 고르고 저장합니다.</li></ol></section>
+    <section class="content-section"><h2>사진 비율을 유지해야 하는 이유</h2><p>사진의 가로와 세로 비율이 원본과 달라지면 인물이나 상품이 납작하거나 길게 보일 수 있습니다. ‘원본 비율 유지’를 켜면 한쪽 길이를 입력할 때 다른 쪽이 자동으로 계산되어 자연스러운 모양을 지킬 수 있습니다. 규격이 정확히 정해진 이미지라면 비율을 끄고 가로와 세로를 모두 입력하세요.</p></section>
+    <section class="content-section"><h2>2배 고화질 확대는 어떻게 다른가요?</h2><p>원본의 가로와 세로를 각각 두 배로 자동 설정하고, 여러 단계로 부드럽게 확대한 뒤 가벼운 선명 보정을 적용합니다. 예를 들어 500 × 500 사진은 1000 × 1000으로 저장됩니다. 사진에 없던 세부 무늬를 새로 만드는 AI 복원은 아니므로, 작은 원본을 지나치게 크게 확대하면 한계가 있을 수 있습니다.</p></section>
+    <section class="content-section"><h2>용도별 설정 팁</h2><p>웹사이트용 사진은 필요한 화면 크기보다 지나치게 크게 만들지 않는 것이 좋습니다. 쇼핑몰 대표사진처럼 정사각형이 필요하다면 먼저 크기를 맞춘 뒤 ‘정사각형’ 도구로 여백을 추가할 수 있습니다. JPG는 일반 사진에, PNG는 투명 배경이 있는 이미지에, WebP는 웹페이지용 작은 파일에 잘 맞습니다.</p></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>원본 사진도 바뀌나요?</summary><p>아니요. 원본은 그대로 유지되고 설정한 크기의 새 파일이 저장됩니다.</p></details><details><summary>여러 장을 같은 크기로 바꿀 수 있나요?</summary><p>최대 30장까지 한 번에 선택할 수 있습니다. 여러 결과는 하나의 ZIP 파일로 묶여 저장됩니다.</p></details><details><summary>사진이 흐려진 이유는 무엇인가요?</summary><p>작은 원본을 크게 확대하면 새 픽셀이 만들어지면서 선명도가 낮아질 수 있습니다. ‘원본의 2배로 확대’와 선명 보정을 사용하면 일반 확대보다 윤곽을 또렷하게 만들 수 있습니다.</p></details></div></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="app.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4b49ca6db5a6cea',t:'MTc5MjEyODAwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

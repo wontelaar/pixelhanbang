@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>쇼츠 썸네일 만들기 - 동영상 장면 JPG 저장 | 픽셀한방</title>
+  <meta name="description" content="동영상에서 원하는 장면을 골라 1080×1920 세로형 쇼츠·릴스 썸네일 JPG로 저장하세요. 파일은 서버에 올리지 않고 기기 안에서 처리합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/shorts-thumbnail.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="shorts-thumbnail">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">쇼츠 썸네일</span>
+      <h1>동영상에서 썸네일을 골라요</h1>
+      <p class="lead">영상을 재생하거나 시간 막대를 움직여 원하는 순간을 찾고, 세로형 JPG로 저장하세요.</p>
+      <div class="privacy-note">동영상을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="쇼츠 썸네일 만들기 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="동영상 파일 선택">
+          <div>
+            <div class="drop-icon video-drop-icon" aria-hidden="true">▶</div>
+            <strong>썸네일로 만들 동영상을 선택하세요</strong>
+            <p>MP4, MOV, WebM 등 · 기기에서 바로 처리</p>
+            <button id="chooseButton" class="button button-secondary" type="button">동영상 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="video/*">
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="thumbnailEditorWrap" class="thumbnail-editor-wrap">
+          <div class="video-source-wrap">
+            <video id="sourceVideo" class="source-video" controls playsinline preload="metadata"></video>
+          </div>
+          <div class="timeline-wrap">
+            <label class="setting-label" for="timeline">썸네일 장면 선택</label>
+            <input id="timeline" class="timeline-range" type="range" min="0" max="1" step="0.01" value="0" disabled>
+            <div class="timeline-meta">
+              <span id="currentTime">00:00.00</span>
+              <span id="durationTime">00:00.00</span>
+            </div>
+            <div class="timeline-actions">
+              <button id="backButton" class="button button-ghost" type="button" disabled>−0.1초</button>
+              <button id="forwardButton" class="button button-ghost" type="button" disabled>+0.1초</button>
+            </div>
+          </div>
+
+          <div class="preview-head thumbnail-preview-head">
+            <strong>쇼츠 썸네일 미리보기</strong>
+            <span>9:16 · 1080 × 1920</span>
+          </div>
+          <div id="thumbnailStage" class="thumbnail-stage" role="application" tabindex="0" aria-label="썸네일 위치 조절 영역">
+            <canvas id="thumbnailCanvas" width="540" height="960"></canvas>
+          </div>
+          <p class="profile-help">필요하면 미리보기를 손가락이나 마우스로 움직여 위치를 맞춰 주세요.</p>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>썸네일 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="zoom">화면 확대</label>
+          <div class="range-row">
+            <input id="zoom" type="range" min="100" max="250" value="100" disabled>
+            <span id="zoomValue" class="range-value">100%</span>
+          </div>
+          <div class="inline-actions"><button id="resetButton" class="button button-ghost" type="button" disabled>가운데로 맞추기</button></div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">저장 크기</span>
+          <div class="output-size-card">
+            <strong>1080 × 1920</strong>
+            <span>쇼츠·릴스 세로형 9:16</span>
+          </div>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>썸네일 JPG 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진·영상 도구"></nav>
+
+    <section class="content-section">
+      <h2>쇼츠 썸네일 만드는 방법</h2>
+      <ol class="steps">
+        <li>휴대폰이나 컴퓨터에 있는 동영상 한 개를 선택하세요.</li>
+        <li>영상을 재생하거나 시간 막대를 움직여 썸네일로 쓸 순간을 고르세요.</li>
+        <li>필요하면 화면을 확대하고 위치를 맞춘 뒤 JPG로 저장하세요.</li>
+      </ol>
+    </section>
+    <section class="content-section">
+      <h2>세로 영상의 한 장면을 또렷하게</h2>
+      <p>선택한 장면은 쇼츠와 릴스에 알맞은 9:16 비율의 1080 × 1920 JPG로 만들어집니다. 원본 영상의 비율이 다르면 화면을 채우는 방식으로 맞추며, 미리보기에서 중요한 부분이 가운데 오도록 직접 움직일 수 있습니다.</p>
+    </section>
+    <section class="content-section">
+      <h2>자주 묻는 질문</h2>
+      <div class="faq">
+        <details><summary>큰 동영상도 사용할 수 있나요?</summary><p>사이트에서 별도의 용량 제한을 두지 않습니다. 동영상 전체를 변환하지 않고 선택한 장면만 이미지로 만들기 때문에 비교적 가볍지만, 실제 사용 가능 용량은 휴대폰의 여유 공간과 브라우저 성능에 따라 달라질 수 있습니다.</p></details>
+        <details><summary>동영상이 사이트에 업로드되나요?</summary><p>아니요. 선택한 동영상과 썸네일은 브라우저 안에서만 처리되며 사이트 서버로 전송하거나 저장하지 않습니다.</p></details>
+        <details><summary>동영상이 열리지 않는 이유는 무엇인가요?</summary><p>MP4, MOV, WebM 같은 파일 형식 안에서도 영상 압축 방식이 다를 수 있습니다. 사용하는 브라우저가 해당 영상을 재생하지 못하면 휴대폰 기본 카메라로 촬영한 MP4 영상이나 다른 브라우저로 다시 시도해 주세요.</p></details>
+        <details><summary>원본 동영상도 바뀌나요?</summary><p>아니요. 원본 동영상은 그대로 유지되고 선택한 장면의 JPG 파일만 새로 저장됩니다.</p></details>
+      </div>
+    </section>
+  </main>
+  <footer id="siteFooter"></footer>
+  <script src="shell.js"></script>
+  <script src="shorts-thumbnail.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4b49ca92ec6aa8c',t:'MTc5MjEyODAwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
