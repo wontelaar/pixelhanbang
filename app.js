@@ -21,6 +21,9 @@
   const squareSize = document.querySelector("#squareSize");
   const background = document.querySelector("#background");
   const gridCount = document.querySelector("#gridCount");
+  const targetSize = document.querySelector("#targetSize");
+  const targetUnit = document.querySelector("#targetUnit");
+  const targetFormat = document.querySelector("#targetFormat");
   let files = [];
   let aspectRatio = null;
   let firstImageSize = null;
@@ -31,7 +34,8 @@
     convert: { button: "형식 변환하고 저장", multiple: true },
     heic: { button: "JPG로 변환하고 저장", multiple: true },
     square: { button: "정사각형으로 저장", multiple: true },
-    grid: { button: "분할 이미지 저장", multiple: false }
+    grid: { button: "분할 이미지 저장", multiple: false },
+    target: { button: "목표 용량으로 저장", multiple: true }
   };
 
   if (!input || !dropzone || !processButton) return;
@@ -193,6 +197,28 @@
       let failures = 0;
       if (mode === "grid") {
         outputs = await processGrid(files[0]);
+      } else if (mode === "target") {
+        const limit = targetLimit();
+        if (!limit) {
+          setStatus("목표 용량을 숫자로 입력해 주세요. 예: 500", "error");
+          return;
+        }
+        outputs = [];
+        const rows = fileList.querySelectorAll(".file-row");
+        for (let index = 0; index < files.length; index += 1) {
+          setStatus(`${index + 1}/${files.length}번째 사진을 목표 용량에 맞추고 있어요…`, "");
+          try {
+            const item = await processTarget(files[index], limit);
+            outputs.push(item);
+            const meta = rows[index] && rows[index].querySelector(".file-meta");
+            if (meta) meta.textContent = `${formatBytes(files[index].size)} → ${formatBytes(item.blob.size)} · ${item.width} × ${item.height}`;
+            if (!item.met) failures += 1;
+          } catch (error) {
+            console.error(error);
+            failures += 1;
+          }
+        }
+        if (!outputs.length) throw new Error("No files could be processed");
       } else if (mode === "heic") {
         outputs = [];
         for (let index = 0; index < files.length; index += 1) {
@@ -217,8 +243,10 @@
       }
       const original = files.reduce((sum, file) => sum + file.size, 0);
       const result = outputs.reduce((sum, item) => sum + item.blob.size, 0);
-      const comparison = mode === "compress" ? ` · ${formatBytes(original)} → ${formatBytes(result)}` : "";
-      const failureNotice = failures ? ` · ${failures}장은 변환하지 못했어요` : "";
+      const comparison = mode === "compress" || mode === "target" ? ` · ${formatBytes(original)} → ${formatBytes(result)}` : "";
+      const failureNotice = !failures ? "" : mode === "target"
+        ? ` · ${failures}장은 목표 용량까지 줄이지 못했어요. 목표를 조금 높여 주세요`
+        : ` · ${failures}장은 변환하지 못했어요`;
       setStatus(outputs.length + "개 파일 저장 준비 완료" + comparison + failureNotice, failures ? "error" : "success");
     } catch (error) {
       console.error(error);
@@ -282,6 +310,64 @@
     bitmap.close();
     const blob = await canvasToBlob(canvas, mime, getQuality());
     return { name: outputName(file.name, mime, mode), blob };
+  }
+
+  function targetLimit() {
+    const value = Number(targetSize && targetSize.value);
+    if (!Number.isFinite(value) || value <= 0) return 0;
+    const bytes = Math.round(value * (targetUnit.value === "MB" ? 1000 * 1000 : 1000));
+    return Math.max(10 * 1000, bytes);
+  }
+
+  // 목표 용량 이하에서 가장 높은 화질을 찾고, 화질만으로 부족하면 픽셀 크기를 줄여 다시 찾는다.
+  async function processTarget(file, limit) {
+    const mime = targetFormat && targetFormat.value === "webp" ? "image/webp" : "image/jpeg";
+    const name = outputName(file.name, mime, "target");
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    try {
+      let scale = Math.min(1, 8000 / Math.max(bitmap.width, bitmap.height));
+      // 작은 사본으로 픽셀당 용량을 먼저 재서, 목표보다 훨씬 큰 사진은 처음부터 알맞은 크기 근처에서 찾는다.
+      const probeScale = Math.min(scale, 800 / Math.max(bitmap.width, bitmap.height));
+      if (probeScale < scale) {
+        const probeWidth = Math.max(1, Math.round(bitmap.width * probeScale));
+        const probeHeight = Math.max(1, Math.round(bitmap.height * probeScale));
+        const probe = await canvasToBlob(drawResized(bitmap, probeWidth, probeHeight, mime === "image/jpeg" ? "#ffffff" : null), mime, .55);
+        const estimate = probe.size / (probeWidth * probeHeight) * bitmap.width * bitmap.height * scale * scale;
+        if (estimate > limit * 1.5) scale *= Math.max(probeScale / scale, Math.sqrt(limit / estimate) * 1.1);
+      }
+      let smallest = null;
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        const width = Math.max(1, Math.round(bitmap.width * scale));
+        const height = Math.max(1, Math.round(bitmap.height * scale));
+        const canvas = drawResized(bitmap, width, height, mime === "image/jpeg" ? "#ffffff" : null);
+        const top = await canvasToBlob(canvas, mime, .95);
+        if (top.size <= limit) return { name, blob: top, met: true, width, height };
+        let low = .55;
+        let high = .95;
+        let fit = null;
+        const floor = await canvasToBlob(canvas, mime, low);
+        if (floor.size <= limit) {
+          fit = floor;
+          for (let step = 0; step < 6; step += 1) {
+            const middle = (low + high) / 2;
+            const blob = await canvasToBlob(canvas, mime, middle);
+            if (blob.size <= limit) {
+              fit = blob;
+              low = middle;
+            } else {
+              high = middle;
+            }
+          }
+          return { name, blob: fit, met: true, width, height };
+        }
+        smallest = { name, blob: floor, met: false, width, height };
+        if (Math.max(width, height) <= 160) break;
+        scale *= Math.min(.9, Math.max(.4, Math.sqrt(limit / floor.size) * .95));
+      }
+      return smallest;
+    } finally {
+      bitmap.close();
+    }
   }
 
   async function processGrid(file) {

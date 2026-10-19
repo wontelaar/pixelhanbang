@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 모자이크·흐림 처리 - 얼굴·송장·번호판 가리기 | 픽셀한방</title>
+  <meta name="description" content="사진 위에서 드래그해 얼굴, 송장 번호, 주소, 차량 번호판을 모자이크·흐림·검정 막대로 가리세요. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/mosaic.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="mosaic">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">모자이크·흐림</span>
+      <h1>보여주기 싫은 부분만 가리기</h1>
+      <p class="lead">사진 위에서 드래그한 네모 영역을 모자이크, 흐림, 검정 막대로 가려요. 얼굴, 송장 번호, 주소, 번호판을 가릴 때 쓰세요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="사진 모자이크 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>가릴 사진을 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 한 장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp">
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="mosaicPreviewWrap" class="preview-wrap">
+          <div class="preview-head">
+            <strong>가릴 곳을 드래그하세요</strong>
+            <span id="regionCount">드래그해서 가릴 곳을 지정하세요</span>
+          </div>
+          <div id="mosaicStage" class="transparent-stage mosaic-stage">
+            <canvas id="mosaicCanvas" aria-label="사진 위에서 드래그해 가릴 영역 지정"></canvas>
+          </div>
+          <div class="inline-actions">
+            <button id="undoButton" class="button button-ghost" type="button" disabled>마지막 영역 취소</button>
+            <button id="clearButton" class="button button-ghost" type="button" disabled>모두 지우기</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>가리기 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="effect">가리는 방법</label>
+          <select id="effect">
+            <option value="mosaic" selected>모자이크</option>
+            <option value="blur">흐리게</option>
+            <option value="fill">검정 막대로 가리기</option>
+          </select>
+          <p class="setting-hint">글자와 번호는 검정 막대가 가장 확실해요.</p>
+        </div>
+        <div id="strengthGroup" class="setting-group">
+          <label class="setting-label" for="strength">강도</label>
+          <div class="range-row">
+            <input id="strength" type="range" min="1" max="10" value="5">
+            <span id="strengthValue" class="range-value">5</span>
+          </div>
+          <p class="setting-hint">값이 클수록 칸이 커지고 알아보기 어려워져요.</p>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>가린 사진 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+    <section class="content-section"><h2>모자이크 처리 사용법</h2><ol class="steps"><li>가릴 부분이 있는 사진 한 장을 선택하세요.</li><li>미리보기 사진 위에서 가릴 부분을 드래그해 네모로 지정하세요. 여러 곳을 차례로 지정할 수 있습니다.</li><li>가리는 방법과 강도를 고른 뒤 ‘가린 사진 저장’을 누르세요.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>후기나 배송 사진을 올리기 전에 송장의 이름·주소·전화번호를 가릴 때</li><li>단체 사진이나 길거리 사진에서 다른 사람의 얼굴을 가릴 때</li><li>차량 번호판, 집 호수, 창밖의 간판처럼 위치를 알려줄 수 있는 부분을 가릴 때</li><li>화면 캡처에 보이는 계좌번호, 주문번호, 메시지 내용을 가릴 때</li></ul></section>
+    <section class="content-section"><h2>모자이크·흐림·검정 막대의 차이</h2><p><strong>모자이크</strong>는 영역을 큰 네모 칸으로 나눠 평균 색으로 채웁니다. 무엇이 있었는지 분위기는 남기면서 자세한 모양을 숨길 때 알맞습니다. <strong>흐리게</strong>는 같은 방식으로 정보를 줄인 뒤 부드럽게 퍼뜨려 사진이 덜 어색해 보입니다. <strong>검정 막대</strong>는 영역을 완전히 덮어 원래 내용이 전혀 남지 않습니다.</p><p>칸이 작은 모자이크나 약한 흐림은 글자 크기에 따라 내용을 짐작할 수 있는 경우가 있습니다. 이름, 전화번호, 주소, 계좌번호처럼 짐작되면 안 되는 정보는 검정 막대로 가리는 것이 가장 안전합니다.</p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>가린 결과는 원래 사진 크기 그대로 새 파일로 저장됩니다. 저장한 뒤 확대해서 빠진 부분이 없는지 확인하세요.</li><li>사진에 비친 거울, 유리창, 모니터 속 내용도 정보가 될 수 있습니다. 가리기 전에 사진 전체를 한 번 살펴보세요.</li><li>결과 파일에는 촬영 위치 같은 사진 정보(EXIF)가 담기지 않습니다. 원본을 그대로 공유하면 위치 정보가 함께 갈 수 있으니 결과 파일을 공유하세요.</li></ul><p class="inline-tools"><a href="photo-location-privacy-guide.html">사진 위치정보 지우고 공유하기</a></p></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>휴대폰에서도 드래그할 수 있나요?</summary><p>네. 사진 위에서 손가락으로 끌면 영역이 지정됩니다. 사진 위에서는 화면이 스크롤되지 않으니, 페이지를 움직일 때는 사진 바깥을 끌어 주세요.</p></details><details><summary>잘못 지정한 영역은 어떻게 지우나요?</summary><p>‘마지막 영역 취소’는 가장 최근에 지정한 곳 하나를, ‘모두 지우기’는 지정한 영역 전체를 없앱니다.</p></details><details><summary>가린 부분을 나중에 되돌릴 수 있나요?</summary><p>저장한 결과 파일에서는 되돌릴 수 없습니다. 원본은 바뀌지 않으므로 원본으로 다시 작업하면 됩니다. 원본을 다른 사람에게 보내지 않도록 주의하세요.</p></details><details><summary>사진이 서버에 올라가나요?</summary><p>아니요. 선택한 사진과 결과는 브라우저 안에서만 처리되며 사이트 서버로 전송하거나 보관하지 않습니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="photo-location-privacy-guide.html">위치정보 지우고 공유</a><a href="kakao-photo-quality-guide.html">카톡 사진 화질</a><a href="guides.html">가이드 전체 보기</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="mosaic.js"></script>
+</body>
+</html>

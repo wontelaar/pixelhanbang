@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 용량 KB 맞추기 - 500KB·1MB 이하로 자동 조절 | 픽셀한방</title>
+  <meta name="description" content="‘500KB 이하’처럼 정해진 용량을 입력하면 사진 화질과 크기를 자동으로 조절해 맞춰 드립니다. 서류 제출, 지원서, 업로드 제한에 맞출 때 쓰세요.">
+  <link rel="canonical" href="https://pixelhanbang.com/target-size.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="target">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro"><span class="eyebrow">용량 맞추기</span><h1>원하는 KB 이하로 자동으로</h1><p class="lead">목표 용량만 입력하면 그 안에서 가장 좋은 화질을 찾아 저장해요. 화질만으로 부족하면 사진 크기도 함께 줄여요.</p><div class="privacy-note">사진은 기기 안에서만 처리돼요</div></section>
+    <section class="workspace" aria-label="사진 용량 맞추기 도구">
+      <div class="panel upload-panel"><div id="dropzone" class="dropzone" role="button" tabindex="0"><div><div class="drop-icon">＋</div><strong>사진을 끌어놓거나 선택하세요</strong><p>JPG, PNG, WebP · 최대 30장</p><button id="chooseButton" class="button button-secondary" type="button">사진 선택</button><input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp"></div></div><div id="fileList" class="file-list" aria-live="polite"></div></div>
+      <aside class="panel settings-panel">
+        <h2>목표 용량</h2>
+        <div class="setting-group"><label class="setting-label" for="targetSize">장당 최대 용량</label><div class="input-row input-row-unit"><input id="targetSize" type="number" min="10" step="1" value="500" inputmode="decimal"><select id="targetUnit" aria-label="용량 단위"><option value="KB" selected>KB</option><option value="MB">MB</option></select></div><p class="setting-hint">제출처가 정한 숫자를 그대로 입력하세요. 1KB를 1000바이트로 계산해 여유 있게 맞춰요.</p></div>
+        <div class="setting-group"><label class="setting-label" for="targetFormat">저장 형식</label><select id="targetFormat"><option value="jpg" selected>JPG · 어디서나 업로드 가능</option><option value="webp">WebP · 더 작게, 투명 유지</option></select></div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>목표 용량으로 저장</button><p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+    <nav data-tool-links></nav>
+    <section class="content-section"><h2>사진 용량 맞추기 사용법</h2><ol class="steps"><li>용량을 맞출 사진을 최대 30장까지 선택하세요.</li><li>제출처가 정한 최대 용량을 KB 또는 MB로 입력하세요.</li><li>‘목표 용량으로 저장’을 누르면 사진마다 목표 이하로 맞춘 파일이 저장됩니다. 목록에서 사진별 결과 용량과 크기를 확인할 수 있어요.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>입사지원서, 학교·관공서 서류에 ‘사진 500KB 이하’처럼 용량 조건이 있을 때</li><li>쇼핑몰이나 게시판 업로드 화면에서 ‘용량 초과’가 뜰 때</li><li>여러 장을 첨부해야 하는데 장당 용량이 정해져 있을 때</li></ul></section>
+    <section class="content-section"><h2>어떻게 맞추나요?</h2><p>먼저 원래 크기 그대로 화질만 낮춰 목표 용량 안에 들어가는 가장 높은 화질을 찾습니다. 화질을 일정 수준 아래로 내려야만 맞출 수 있는 경우에는 화질을 더 깎지 않고 사진의 가로·세로 크기를 조금씩 줄여 다시 찾습니다. 화질이 지나치게 낮아져 얼굴이나 글자가 뭉개지는 것보다, 크기를 약간 줄이는 편이 대부분의 화면에서 더 깨끗하게 보이기 때문입니다.</p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>제출처가 최소 크기(예: 가로 몇 픽셀 이상)도 정해 두었다면, 저장 후 목록에 표시되는 가로 × 세로 값을 꼭 확인하세요. 너무 작아졌다면 목표 용량을 조금 높여야 합니다.</li><li>JPG로 저장하면 투명 배경은 흰색으로 채워집니다. 투명을 유지하려면 WebP를 고르세요. 다만 WebP를 받지 않는 업로드 화면도 있습니다.</li><li>결과는 새로 저장한 파일이라 촬영 위치 같은 사진 정보(EXIF)는 담기지 않습니다.</li><li>이미 목표보다 작은 사진도 새로 저장되며, 이때는 높은 화질로 저장됩니다.</li></ul></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>KB와 MB는 어떻게 계산하나요?</summary><p>1KB를 1000바이트, 1MB를 1000KB로 계산합니다. 1024로 계산하는 곳보다 조금 더 작게 맞춰지므로 어느 기준이든 제한을 넘지 않습니다.</p></details><details><summary>목표를 너무 작게 잡으면 어떻게 되나요?</summary><p>사진 크기를 계속 줄여서라도 맞추려고 하지만, 아주 작은 목표에서는 사진이 지나치게 작아질 수 있습니다. 그럴 땐 목록의 결과 크기를 보고 목표 용량을 조금 높여 다시 저장하세요.</p></details><details><summary>용량 줄이기 도구와 무엇이 다른가요?</summary><p>용량 줄이기 도구는 화질 값을 직접 정하는 방식이고, 이 도구는 원하는 용량만 정하면 화질과 크기를 알아서 맞추는 방식입니다. 제출 조건이 숫자로 정해져 있다면 이 도구가 편합니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 맞춘 결과를 새 파일로 저장합니다. 여러 장은 하나의 ZIP 파일로 묶여 저장됩니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="document-photo-size-guide.html">서류 제출용 사진 맞추기</a><a href="upload-size-limit-guide.html">용량 초과 해결 순서</a><a href="compress.html">화질 직접 정하기</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="app.js"></script>
+</body>
+</html>

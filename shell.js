@@ -3,8 +3,11 @@
   const links = [
     ["resize", "resize.html", "크기 변경"],
     ["compress", "compress.html", "용량 줄이기"],
+    ["target", "target-size.html", "용량 맞추기"],
     ["convert", "convert.html", "형식 변환"],
+    ["crop", "crop.html", "자르기"],
     ["remove-bg", "remove-bg.html", "배경 투명하게"],
+    ["mosaic", "mosaic.html", "모자이크"],
     ["mono-logo", "mono-logo.html", "사진 캐릭터"],
     ["circle-profile", "circle-profile.html", "원형 프로필"],
     ["shorts-thumbnail", "shorts-thumbnail.html", "쇼츠 썸네일"],
@@ -32,8 +35,11 @@
     const notes = {
       resize: "가로·세로 픽셀을 원하는 크기로",
       compress: "화질을 조절해 파일 용량 줄이기",
+      target: "500KB 이하처럼 정한 용량에 맞추기",
       convert: "JPG·PNG·WebP로 바꾸기",
+      crop: "1:1·4:5·9:16·증명사진 비율로 자르기",
       "remove-bg": "단색 배경을 지우고 투명 PNG로",
+      mosaic: "얼굴·송장·번호판 가리기",
       "mono-logo": "사진 속 대상만 선명한 색면 캐릭터로",
       "circle-profile": "사진을 원 안에 맞춰 프로필 만들기",
       "shorts-thumbnail": "동영상에서 원하는 장면을 세로 JPG로",

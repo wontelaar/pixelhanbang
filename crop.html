@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 자르기 - 1:1·4:5·9:16·증명사진 비율로 자르기 | 픽셀한방</title>
+  <meta name="description" content="정사각형, 인스타 4:5·3:4, 쇼츠 9:16, 증명사진 3.5×4.5 비율 틀에 맞춰 사진을 움직이고 확대해 원하는 부분만 잘라 저장하세요.">
+  <link rel="canonical" href="https://pixelhanbang.com/crop.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="crop">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">사진 자르기</span>
+      <h1>원하는 비율로 딱 맞게 자르기</h1>
+      <p class="lead">비율을 고르고 사진을 움직이거나 확대해서 남길 부분만 틀 안에 맞추면 돼요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="사진 자르기 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>자를 사진을 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 한 장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp">
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="cropEditorWrap" class="profile-editor-wrap">
+          <div id="cropStage" class="profile-stage" role="application" tabindex="0" aria-label="자를 위치 조절 영역">
+            <canvas id="cropCanvas" width="720" height="720"></canvas>
+          </div>
+          <p class="profile-help">틀 안에 보이는 부분이 저장돼요. 사진을 손가락이나 마우스로 움직여 맞춰 주세요.</p>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>자르기 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="ratio">비율</label>
+          <select id="ratio">
+            <option value="1:1" selected>1:1 · 정사각형</option>
+            <option value="4:5">4:5 · 인스타 세로 게시물</option>
+            <option value="3:4">3:4 · 세로, 반명함</option>
+            <option value="7:9">3.5 × 4.5cm · 증명·여권사진</option>
+            <option value="9:16">9:16 · 쇼츠·릴스·스토리</option>
+            <option value="16:9">16:9 · 가로 영상·썸네일</option>
+            <option value="3:2">3:2 · 가로 사진</option>
+            <option value="2:3">2:3 · 세로 사진</option>
+            <option value="original">원본 비율 그대로</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="zoom">확대</label>
+          <div class="range-row">
+            <input id="zoom" type="range" min="100" max="400" value="100" aria-label="사진 확대" disabled>
+            <span id="zoomValue" class="range-value">100%</span>
+          </div>
+          <div class="inline-actions"><button id="resetButton" class="button button-ghost" type="button" disabled>가운데로 맞추기</button></div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="outputSize">저장 크기</label>
+          <select id="outputSize">
+            <option value="original" selected>잘라낸 부분 원래 화질 그대로</option>
+            <option value="1080">가로 1080px</option>
+            <option value="2000">가로 2000px</option>
+            <option value="413">가로 413px · 증명사진 인화용(300dpi)</option>
+          </select>
+          <p id="sizeNote" class="setting-hint"></p>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="format">저장 형식</label>
+          <select id="format">
+            <option value="jpg" selected>JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>잘라서 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+    <section class="content-section"><h2>사진 자르기 사용법</h2><ol class="steps"><li>자를 사진 한 장을 선택하세요.</li><li>비율을 고른 뒤 사진을 움직이고 확대해 남길 부분을 틀 안에 맞추세요. 흰 줄은 화면을 세 칸씩 나눈 구도 안내선입니다.</li><li>저장 크기와 형식을 고르고 ‘잘라서 저장’을 누르세요.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>인스타그램에 올릴 사진을 4:5나 3:4로 미리 맞춰 원하지 않는 부분이 잘리는 것을 막고 싶을 때</li><li>쇼츠·릴스·스토리용 세로 9:16 이미지가 필요할 때</li><li>증명사진·반명함처럼 정해진 비율로 얼굴 위치를 맞춰야 할 때</li><li>쇼핑몰 대표이미지를 정사각형으로 자르면서 상품을 가운데 두고 싶을 때</li></ul></section>
+    <section class="content-section"><h2>자르기와 정사각형 여백은 어떻게 다른가요?</h2><p>자르기는 틀 밖의 부분을 버리고 남은 부분만 저장합니다. 사진 전체를 살려야 한다면 잘라내지 않고 주변에 여백을 넣는 ‘정사각형’ 도구가 더 알맞습니다. 전신 사진처럼 머리나 발이 잘리면 안 되는 사진은 여백을, 배경이 넓어 대상이 작게 보이는 사진은 자르기를 쓰면 좋습니다.</p><p class="inline-tools"><a href="square.html">잘림 없이 정사각형 만들기</a></p></section>
+    <section class="content-section"><h2>증명사진 비율로 자를 때</h2><p>3.5 × 4.5cm 비율을 고르면 증명·여권사진과 같은 가로세로 비율로 자를 수 있습니다. 저장 크기에서 ‘가로 413px’를 고르면 300dpi로 인화했을 때 3.5 × 4.5cm가 되는 413 × 531 픽셀로 저장됩니다. 다만 얼굴 크기, 배경색, 촬영 시기 같은 세부 규정은 제출처마다 다르므로 반드시 해당 기관의 안내를 따르세요. 여권처럼 규정이 엄격한 사진은 사진관 촬영을 권장합니다.</p><p class="inline-tools"><a href="dpi-resolution-guide.html">해상도·DPI 계산법</a><a href="document-photo-size-guide.html">서류 제출용 사진 맞추기</a></p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>많이 확대해서 작은 부분만 잘라내면 남는 픽셀이 적어 저장 크기를 크게 골랐을 때 흐려질 수 있습니다. 설정 아래에 표시되는 저장 크기 안내를 확인하세요.</li><li>JPG로 저장하면 투명한 부분은 흰색으로 채워집니다. 투명 배경을 살리려면 PNG나 WebP를 고르세요.</li><li>결과는 새로 저장한 파일이라 촬영 위치 같은 사진 정보(EXIF)는 담기지 않습니다.</li></ul></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>원하는 비율이 목록에 없어요</summary><p>자주 쓰는 비율을 우선 넣어 두었습니다. 정확한 픽셀이 필요하다면 가까운 비율로 자른 뒤 ‘크기 변경’ 도구에서 가로·세로를 직접 입력해 맞추세요.</p></details><details><summary>사진을 회전할 수 있나요?</summary><p>현재는 회전 기능이 없습니다. 휴대폰으로 찍은 사진의 방향 정보는 자동으로 반영되어 보이는 방향 그대로 잘립니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 잘라낸 부분만 새 파일로 저장합니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="instagram-ratio-guide.html">인스타 사진 비율 정리</a><a href="profile-photo-guide.html">프로필 사진 준비하기</a><a href="sns-image-guide.html">SNS 이미지 준비법</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="crop.js"></script>
+</body>
+</html>
