@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 이어붙이기 - 여러 장 세로·가로로 합치기 | 픽셀한방</title>
+  <meta name="description" content="여러 장의 사진을 같은 폭으로 맞춰 세로나 가로로 이어붙여 한 장으로 저장하세요. 순서 변경, 사진 사이 간격, 배경색을 고를 수 있습니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/stitch.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="stitch">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro"><span class="eyebrow">사진 이어붙이기</span><h1>여러 장을 한 장으로</h1><p class="lead">사진을 같은 폭으로 맞춰 위아래나 옆으로 순서대로 붙여요. 목록의 화살표로 순서를 바꿀 수 있어요.</p><div class="privacy-note">사진은 기기 안에서만 처리돼요</div></section>
+    <section class="workspace" aria-label="사진 이어붙이기 도구">
+      <div class="panel upload-panel"><div id="dropzone" class="dropzone" role="button" tabindex="0"><div><div class="drop-icon">＋</div><strong>붙일 사진을 끌어놓거나 선택하세요</strong><p>JPG, PNG, WebP · 2~30장</p><button id="chooseButton" class="button button-secondary" type="button">사진 선택</button><input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp"></div></div><div id="fileList" class="file-list" aria-live="polite"></div></div>
+      <aside class="panel settings-panel">
+        <h2>이어붙이기 설정</h2>
+        <div class="setting-group"><label class="setting-label" for="stitchDirection">붙이는 방향</label><select id="stitchDirection"><option value="vertical" selected>위아래로 (세로로 길게)</option><option value="horizontal">옆으로 (가로로 길게)</option></select></div>
+        <div class="setting-group"><label id="stitchSizeLabel" class="setting-label" for="stitchSize">결과 가로 폭</label><div class="input-row input-row-unit"><input id="stitchSize" type="number" min="100" max="8000" step="10" value="1000" inputmode="numeric"><span class="unit-label">px</span></div><p class="setting-hint">모든 사진을 이 크기에 맞춰 비율대로 늘이거나 줄여요.</p></div>
+        <div class="setting-group"><label class="setting-label" for="stitchGap">사진 사이 간격</label><div class="input-row input-row-unit"><input id="stitchGap" type="number" min="0" max="200" step="1" value="0" inputmode="numeric"><span class="unit-label">px</span></div></div>
+        <div class="setting-group"><label class="setting-label" for="background">간격·배경 색</label><input id="background" type="color" value="#ffffff"></div>
+        <div class="setting-group"><label class="setting-label" for="format">저장 형식</label><select id="format"><option value="jpg" selected>JPG</option><option value="png">PNG</option><option value="webp">WebP</option></select></div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>이어붙여 저장</button><p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+    <nav data-tool-links></nav>
+    <section class="content-section"><h2>사진 이어붙이는 방법</h2><ol class="steps"><li>붙일 사진을 2장 이상 선택하세요. 고른 순서대로 목록에 쌓입니다.</li><li>목록의 ↑ ↓ 버튼으로 순서를 정하고, 방향과 결과 크기, 간격을 고르세요.</li><li>‘이어붙여 저장’을 누르면 한 장으로 합친 이미지가 저장됩니다.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>상품사진 여러 장을 이어 간단한 상세페이지 이미지를 만들 때</li><li>비교 사진(전·후, 색상별)을 나란히 붙여 한 장으로 보여줄 때</li><li>여러 장의 화면 캡처를 하나로 합쳐 공유할 때</li></ul></section>
+    <section class="content-section"><h2>결과 크기 정하는 요령</h2><p>세로로 붙일 때는 결과 가로 폭이 곧 모든 사진의 가로 폭이 됩니다. 원본보다 크게 정하면 사진이 확대되어 흐려질 수 있으니, 가장 좁은 사진의 폭과 비슷하게 정하는 것이 좋습니다. 사진을 많이 붙이면 결과가 매우 길어지는데, 브라우저가 한 번에 만들 수 있는 이미지 크기에는 한계가 있어 긴 쪽 30,000픽셀을 넘으면 전체를 같은 비율로 조금 줄여 저장합니다. 판매처에 따라 한 장의 길이나 용량을 제한하는 경우가 있으니, 너무 길어진다면 여러 장으로 나눠 올리세요.</p><p class="inline-tools"><a href="split.html">긴 이미지 나누기</a><a href="target-size.html">용량 맞추기</a></p></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>크기가 다른 사진도 붙일 수 있나요?</summary><p>네. 모든 사진을 같은 폭(옆으로 붙이면 같은 높이)으로 비율에 맞춰 바꾼 뒤 붙이므로, 사진이 찌그러지지 않습니다.</p></details><details><summary>사진 사이에 흰 줄을 넣고 싶어요</summary><p>‘사진 사이 간격’에 픽셀 값을 넣고 간격 색을 고르면 그 색의 줄이 들어갑니다. 0으로 두면 틈 없이 이어집니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 합친 결과만 새 파일로 저장합니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="detail-page-loading-guide.html">상세페이지가 모바일에서 느릴 때</a><a href="shopping-photo-guide.html">상품사진 등록 7단계</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="app.js"></script>
+</body>
+</html>

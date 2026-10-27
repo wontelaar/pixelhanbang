@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 위치정보·EXIF 확인하고 지우기 - 화질 그대로 | 픽셀한방</title>
+  <meta name="description" content="사진에 담긴 촬영 위치, 날짜, 기기 정보를 확인하고 화질 손실 없이 지운 사본을 저장하세요. 파일은 서버에 올리지 않고 기기 안에서 처리합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/exif.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="exif">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro"><span class="eyebrow">사진 정보 지우기</span><h1>사진 속 위치·날짜, 확인하고 지우기</h1><p class="lead">사진을 넣으면 촬영 위치, 날짜, 기기 정보가 담겨 있는지 바로 보여주고, 화질은 그대로 둔 채 정보만 지운 사본을 저장해요.</p><div class="privacy-note">사진은 기기 안에서만 읽고 처리해요</div></section>
+    <section class="workspace" aria-label="사진 정보 확인·삭제 도구">
+      <div class="panel upload-panel"><div id="dropzone" class="dropzone" role="button" tabindex="0"><div><div class="drop-icon">＋</div><strong>확인할 사진을 끌어놓거나 선택하세요</strong><p>JPG, PNG, WebP · 최대 30장</p><button id="chooseButton" class="button button-secondary" type="button">사진 선택</button><input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp"></div></div><div id="fileList" class="file-list" aria-live="polite"></div></div>
+      <aside class="panel settings-panel">
+        <h2>정보 지우기</h2>
+        <p class="setting-hint">선택한 사진 아래에 담긴 정보가 표시돼요. 빨간 글씨는 촬영 위치예요.</p>
+        <div class="setting-group"><p class="setting-hint">지우는 것: 촬영 위치(GPS), 촬영 일시, 기기·렌즈, 편집 프로그램, XMP·IPTC 정보<br>남기는 것: 사진 방향, 색 정보(ICC)</p></div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>정보 지우고 저장</button><p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+    <nav data-tool-links></nav>
+    <section class="content-section"><h2>사진 정보 확인·삭제 방법</h2><ol class="steps"><li>확인할 사진을 선택하세요. 목록의 각 사진 아래에 촬영 위치, 일시, 기기 정보가 표시됩니다.</li><li>지우고 싶다면 ‘정보 지우고 저장’을 누르세요.</li><li>이름 뒤에 ‘-clean’이 붙은 사본이 저장됩니다. 공유할 때는 이 사본을 쓰세요.</li></ol></section>
+    <section class="content-section"><h2>사진에는 어떤 정보가 담기나요?</h2><p>휴대폰과 카메라는 사진을 찍을 때 EXIF라는 형식으로 촬영 일시, 기기 모델, 렌즈, 노출 같은 정보를 함께 저장합니다. 위치 서비스가 켜져 있으면 촬영한 곳의 위도와 경도도 기록됩니다. 편집 앱을 거친 사진에는 XMP나 IPTC라는 형식으로 편집 기록이나 작성자 정보가 추가되기도 합니다. 이 정보는 사진을 볼 때는 보이지 않지만, 원본 파일을 받은 사람은 사진 앱이나 PC의 파일 속성에서 확인할 수 있습니다.</p><p class="inline-tools"><a href="photo-location-privacy-guide.html">위치정보 지우고 공유하는 법</a></p></section>
+    <section class="content-section"><h2>화질이 그대로인 이유</h2><p>이 도구는 사진을 다시 그려서 저장하지 않습니다. 파일 안에서 정보가 담긴 부분만 빼고 그림 데이터는 손대지 않고 그대로 옮겨 담기 때문에, JPG도 다시 압축되지 않아 화질과 크기가 거의 그대로입니다. 사진이 옆으로 눕지 않도록 방향 정보와, 색이 달라지지 않도록 색 정보(ICC)는 남겨 둡니다.</p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>아이폰 HEIC 사진은 바로 처리할 수 없습니다. HEIC→JPG 도구로 바꾸면 그 과정에서 사진 정보가 함께 빠집니다.</li><li>사진 속에 보이는 간판, 주소, 송장처럼 화면에 찍힌 정보는 지워지지 않습니다. 그런 부분은 모자이크 도구로 가리세요.</li><li>카카오톡 일반 화질 전송이나 많은 SNS는 올릴 때 정보를 지우기도 하지만, 원본 전송이나 메일 첨부, 클라우드 공유는 정보가 그대로 갈 수 있습니다.</li><li>보조 이미지가 붙어 있는 일부 휴대폰 사진은 지울 때 보조 이미지(밝기 보정용 등)도 함께 빠질 수 있습니다. 일반적인 화면에서 보이는 사진은 같습니다.</li></ul><p class="inline-tools"><a href="mosaic.html">사진 속 정보 가리기</a><a href="heic-jpg.html">HEIC를 JPG로</a></p></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>‘담긴 사진 정보가 없어요’라고 나와요</summary><p>이미 정보가 지워진 사진입니다. 메신저나 SNS에서 저장한 사진, 화면 캡처, 다른 도구로 새로 저장한 사진은 정보가 없는 경우가 많습니다.</p></details><details><summary>지도에서 보기는 어떻게 동작하나요?</summary><p>누르면 사진에 기록된 좌표로 구글 지도가 새 창에서 열립니다. 이때만 좌표가 구글 지도로 전달되며, 누르지 않으면 어디에도 보내지 않습니다.</p></details><details><summary>다른 도구로 저장한 사진에도 정보가 남나요?</summary><p>픽셀한방의 크기 변경, 용량 줄이기 등 다른 도구는 사진을 새로 그려 저장하기 때문에 결과 파일에 촬영 정보가 담기지 않습니다. 이 도구는 화질을 그대로 유지하고 싶을 때 쓰면 좋습니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 정보를 지운 사본을 새 파일로 저장합니다. 원본은 다른 사람에게 보내지 않도록 주의하세요.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="photo-location-privacy-guide.html">위치정보 지우고 공유</a><a href="kakao-photo-quality-guide.html">카톡 사진 화질</a><a href="guides.html">가이드 전체 보기</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="app.js"></script>
+</body>
+</html>

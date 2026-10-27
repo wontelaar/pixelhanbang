@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>긴 이미지 자르기·나누기 - 상세페이지 분할 저장 | 픽셀한방</title>
+  <meta name="description" content="세로로 긴 상세페이지나 캡처 이미지를 원하는 높이 또는 개수로 나눠 화질 그대로 저장하세요. 조각은 번호 순서대로 ZIP으로 묶입니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/split.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="split">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro"><span class="eyebrow">긴 이미지 나누기</span><h1>긴 사진을 여러 장으로</h1><p class="lead">세로로 긴 상세페이지나 캡처 이미지를 정한 높이나 개수로 잘라, 번호 순서대로 저장해요.</p><div class="privacy-note">사진은 기기 안에서만 처리돼요</div></section>
+    <section class="workspace" aria-label="긴 이미지 나누기 도구">
+      <div class="panel upload-panel"><div id="dropzone" class="dropzone" role="button" tabindex="0"><div><div class="drop-icon">＋</div><strong>나눌 이미지 한 장을 선택하세요</strong><p>JPG, PNG, WebP · 장당 25MB</p><button id="chooseButton" class="button button-secondary" type="button">사진 선택</button><input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp"></div></div><div id="fileList" class="file-list" aria-live="polite"></div></div>
+      <aside class="panel settings-panel">
+        <h2>나누기 설정</h2>
+        <div class="setting-group"><label class="setting-label" for="splitDirection">나누는 방향</label><select id="splitDirection"><option value="vertical" selected>위에서 아래로 (세로로 긴 이미지)</option><option value="horizontal">왼쪽에서 오른쪽으로 (가로로 긴 이미지)</option></select></div>
+        <div class="setting-group"><label class="setting-label" for="splitMode">나누는 기준</label><select id="splitMode"><option value="count" selected>같은 크기로 몇 조각</option><option value="pixels">조각 하나의 길이(px)</option></select></div>
+        <div class="setting-group"><label class="setting-label" for="splitValue">값</label><div class="input-row input-row-unit"><input id="splitValue" type="number" min="1" step="1" value="3" inputmode="numeric"><span id="splitUnit" class="unit-label">조각</span></div><p class="setting-hint">길이로 나누면 마지막 조각은 남은 만큼만 짧게 저장돼요.</p></div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>나눠서 저장</button><p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+    <nav data-tool-links></nav>
+    <section class="content-section"><h2>긴 이미지 나누는 방법</h2><ol class="steps"><li>나눌 이미지 한 장을 선택하세요.</li><li>나누는 방향과 기준을 고르세요. ‘몇 조각’은 같은 길이로 나누고, ‘조각 하나의 길이’는 정한 픽셀마다 자릅니다.</li><li>‘나눠서 저장’을 누르면 01, 02… 번호가 붙은 조각이 ZIP 파일로 저장됩니다.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>한 장으로 만든 긴 상세페이지 이미지가 업로드 화면에서 거부되거나 자동으로 줄어 흐려질 때</li><li>휴대폰에서 상세페이지가 늦게 뜨는 것을 줄이려고 이미지를 여러 장으로 나눠 올릴 때</li><li>긴 화면 캡처를 메신저나 SNS에 여러 장으로 나눠 보낼 때</li></ul><p class="inline-tools"><a href="detail-page-loading-guide.html">상세페이지가 모바일에서 느릴 때</a></p></section>
+    <section class="content-section"><h2>나눌 때 알아두세요</h2><p>조각은 원본 픽셀을 그대로 잘라 저장하므로 크기를 줄이지 않습니다. 다만 JPG는 저장할 때 다시 압축되므로, 원본에 가까운 화질이 필요하면 PNG 원본을 쓰거나 화질 손실을 감안해 주세요. 글자나 상품이 조각 경계에 걸리면 이어서 볼 때 어색할 수 있으니, ‘조각 하나의 길이’로 경계 위치를 조절해 보세요. 한 번에 만들 수 있는 조각은 100개까지입니다.</p></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>나눈 조각을 다시 합칠 수 있나요?</summary><p>네. ‘사진 이어붙이기’ 도구에서 조각을 번호 순서대로 선택하고 간격을 0으로 두면 다시 한 장으로 붙일 수 있습니다.</p></details><details><summary>파일 이름 순서가 섞이지 않나요?</summary><p>조각마다 01, 02처럼 두 자리 번호가 붙어 폴더에서 이름순으로 정렬해도 순서가 유지됩니다.</p></details><details><summary>원본 이미지가 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 나눈 조각만 새 파일로 저장합니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="stitch.html">사진 이어붙이기</a><a href="smartstore-image-guide.html">스마트스토어 이미지 준비</a><a href="fabric-compression-guide.html">옷 사진이 깨질 때</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="app.js"></script>
+</body>
+</html>

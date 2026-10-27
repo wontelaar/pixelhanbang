@@ -825,3 +825,19 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 /* 모자이크: 사진 위에서 드래그해 영역 지정 */
 .mosaic-stage { cursor: crosshair; }
 .mosaic-stage canvas { touch-action: none; user-select: none; }
+/* 이어붙이기: 순서 옮기기 버튼 */
+.file-actions { display: flex; gap: 4px; }
+.file-move { font-size: .95rem; }
+.file-move:disabled { opacity: .35; cursor: default; }
+/* 사진 정보 보기 */
+.file-exif { margin-top: 6px; display: grid; gap: 2px; color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; }
+.file-exif b { color: var(--ink); font-weight: 750; }
+.file-exif .warn, .file-exif .warn b { color: var(--danger); }
+.file-exif a { margin-left: 4px; font-weight: 700; }
+/* 워터마크 문구·로고 입력 */
+.text-input { width: 100%; min-height: 44px; padding: 9px 11px; border: 1px solid #cbd7e5; border-radius: 10px; color: var(--ink); background: #fff; font: inherit; }
+.text-input:focus { outline: 3px solid rgba(21, 101, 216, .2); border-color: var(--blue); }
+.settings-panel input[type="file"] { width: 100%; font-size: .82rem; }
+.main-nav a.nav-all { color: var(--blue); font-weight: 750; }
+#tools { scroll-margin-top: 90px; }
+.button[hidden] { display: none; }
