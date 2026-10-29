@@ -326,6 +326,36 @@
     return sessionPromise;
   }
 
+  // 정사각형 범위의 최댓값 필터(가로, 세로 두 번)로 칠한 영역을 radius만큼 넓힌다.
+  function growMask(source, width, height, radius) {
+    const horizontal = new Uint8Array(source.length);
+    for (let row = 0; row < height; row += 1) {
+      const offset = row * width;
+      let count = 0;
+      for (let col = 0; col < Math.min(width, radius); col += 1) count += source[offset + col];
+      for (let col = 0; col < width; col += 1) {
+        const enter = col + radius;
+        const leave = col - radius - 1;
+        if (enter < width) count += source[offset + enter];
+        if (leave >= 0) count -= source[offset + leave];
+        horizontal[offset + col] = count > 0 ? 1 : 0;
+      }
+    }
+    const result = new Uint8Array(source.length);
+    for (let col = 0; col < width; col += 1) {
+      let count = 0;
+      for (let row = 0; row < Math.min(height, radius); row += 1) count += horizontal[row * width + col];
+      for (let row = 0; row < height; row += 1) {
+        const enter = row + radius;
+        const leave = row - radius - 1;
+        if (enter < height) count += horizontal[enter * width + col];
+        if (leave >= 0) count -= horizontal[leave * width + col];
+        result[row * width + col] = count > 0 ? 1 : 0;
+      }
+    }
+    return result;
+  }
+
   async function eraseTag() {
     if (!work || !painted || busy) return;
     busy = true;
@@ -335,10 +365,12 @@
       const session = await loadSession();
       setStatus("택을 지우고 있어요…", "");
       await new Promise(resolve => setTimeout(resolve, 30));
-      // 칠한 곳 주변을 넉넉히 잘라 AI에 넘겨서, 큰 사진도 빠르고 가볍게 처리한다.
+      // 칠한 곳 주변을 잘라 AI에 넘겨 큰 사진도 가볍게 처리한다. 주변이 좁으면 AI가 엉뚱한 줄을 그려 넣으므로
+      // 칠한 크기의 4배, 사진 긴 변의 15% 중 큰 값만큼 넉넉히 남긴다.
       const width = painted.maxX - painted.minX;
       const height = painted.maxY - painted.minY;
-      const margin = Math.max(48, Math.max(width, height) * 1.5);
+      const longSide = Math.max(work.width, work.height);
+      const margin = Math.max(Math.max(width, height) * 4, longSide * .15, 96) + Math.max(3, longSide * .004);
       const x = Math.max(0, Math.floor(painted.minX - margin));
       const y = Math.max(0, Math.floor(painted.minY - margin));
       const right = Math.min(work.width, Math.ceil(painted.maxX + margin));
@@ -350,13 +382,18 @@
       const maskPixels = mask.getContext("2d").getImageData(x, y, cropWidth, cropHeight).data;
       const size = cropWidth * cropHeight;
       const imageData = new Uint8Array(size * 3);
-      const maskData = new Uint8Array(size);
+      const painted01 = new Uint8Array(size);
       for (let index = 0; index < size; index += 1) {
         imageData[index] = before.data[index * 4];
         imageData[size + index] = before.data[index * 4 + 1];
         imageData[size * 2 + index] = before.data[index * 4 + 2];
-        maskData[index] = maskPixels[index * 4 + 3] > 0 ? 0 : 255;
+        painted01[index] = maskPixels[index * 4 + 3] > 0 ? 1 : 0;
       }
+      // 택 테두리와 그림자가 칠한 경계에 걸쳐 있으면 AI가 그 선을 배경으로 알고 이어 그린다.
+      // 칠한 곳을 사진 긴 변의 0.4%(최소 3픽셀)만큼 넓혀 테두리까지 함께 지운다.
+      const grown = growMask(painted01, cropWidth, cropHeight, Math.max(3, Math.round(Math.max(work.width, work.height) * .004)));
+      const maskData = new Uint8Array(size);
+      for (let index = 0; index < size; index += 1) maskData[index] = grown[index] ? 0 : 255;
       const ort = window.ort;
       const output = await session.run({
         image: new ort.Tensor("uint8", imageData, [1, 3, cropHeight, cropWidth]),
