@@ -113,7 +113,9 @@
     wandRow.classList.toggle("hidden", !wand);
     touchHint.textContent = wand
       ? "남은 배경을 한 번 누르면 비슷한 색으로 이어진 부분이 투명해져요. 덜 지워지면 범위를 높이고, 옷까지 지워지면 낮추세요."
-      : touchTool.value === "restore"
+      : touchTool.value === "keep"
+        ? "옷이 투명하게 빠진 곳을 넉넉하게 문지르면, 주변 옷과 색이 비슷한 곳만 되살아나요. 벽은 그대로 투명하게 남아요."
+        : touchTool.value === "restore"
         ? "잘못 지워진 옷 부분을 칠하면 원래대로 돌아와요."
         : touchTool.value === "smooth"
         ? "자글거리는 가장자리를 따라 문지르면 삐져나온 부분만 깎여 선이 부드러워져요. 빈 곳을 채우지는 않아요."
@@ -489,6 +491,7 @@
     (edits.get(file) || []).forEach(item => {
       if (item.type === "erase" || item.type === "restore") paintStroke(alpha, width, height, item);
       else if (item.type === "smooth") smoothStroke(alpha, width, height, item);
+      else if (item.type === "keep") keepStroke(data, alpha, width, height, item);
       else clearSimilar(data, alpha, width, height, item);
     });
   }
@@ -520,6 +523,116 @@
         const target = Math.min(alpha[index], crisp);
         alpha[index] = Math.round(alpha[index] + (target - alpha[index]) * coverage / 255);
       }
+    }
+  }
+
+  // 문지른 자리 안에서 옷 색에 가까운 픽셀만 되살린다. 주변의 확실한 옷·배경 픽셀 중 가장 비슷한 색과 비교해
+  // (그늘진 옷은 그늘진 옷 픽셀과 비교된다) 옷 쪽에 가까운 곳만 불투명하게 만들고, 이미 남아 있는 곳을 지우지는 않는다.
+  function keepStroke(data, alpha, width, height, item) {
+    const { mask, box } = strokeMask(width, height, item);
+    if (!box) return;
+    const radius = Math.max(8, Math.round(item.r * Math.max(width, height) * 2));
+    const x0 = Math.max(0, box.x0 - radius), y0 = Math.max(0, box.y0 - radius);
+    const x1 = Math.min(width, box.x1 + radius), y1 = Math.min(height, box.y1 + radius);
+    const w = x1 - x0, h = y1 - y0;
+    // 비교용 색 표본을 모은다. 문지른 자리는 빠진 옷일 수 있으니 배경 표본에서 뺀다.
+    const fore = [], back = [];
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const index = (y0 + y) * width + x0 + x;
+        if (alpha[index] >= 250) fore.push(index);
+        else if (alpha[index] <= 5 && !mask[index * 4 + 3]) back.push(index);
+      }
+    }
+    if (fore.length < 8 || back.length < 8) return;
+    const pick = (list) => {
+      const step = Math.max(1, Math.floor(list.length / 400));
+      const out = [];
+      for (let k = 0; k < list.length; k += step) out.push([data[list[k] * 4], data[list[k] * 4 + 1], data[list[k] * 4 + 2]]);
+      return out;
+    };
+    const foreColors = pick(fore), backColors = pick(back);
+    // 밝기보다 색감(누런 옷 vs 회색 벽) 차이를 더 크게 본다.
+    const distance = (r, g, b, c) => {
+      const light = (r + g + b - c[0] - c[1] - c[2]) / 3;
+      const warm = (r - g) - (c[0] - c[1]);
+      const blue = (b - g) - (c[2] - c[1]);
+      return .35 * light * light + 2.5 * (warm * warm + blue * blue);
+    };
+    // 가장 가까운 세 표본의 평균 거리(잡티 하나에 휘둘리지 않게).
+    const nearest = (r, g, b, colors) => {
+      let a = Infinity, bb = Infinity, cc = Infinity;
+      for (const c of colors) {
+        const value = distance(r, g, b, c);
+        if (value < a) { cc = bb; bb = a; a = value; }
+        else if (value < bb) { cc = bb; bb = value; }
+        else if (value < cc) cc = value;
+      }
+      return Math.sqrt((a + bb + cc) / 3);
+    };
+    // 1) 문지른 픽셀마다 "옷 쪽에 얼마나 가까운지(0~1)"를 구한다.
+    const share = new Float32Array(w * h);
+    const covered = new Uint8Array(w * h);
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const index = (y0 + y) * width + x0 + x;
+        const local = y * w + x;
+        if (alpha[index] >= 250) { share[local] = 1; continue; }
+        const coverage = mask[index * 4 + 3];
+        if (!coverage) continue;
+        covered[local] = coverage;
+        const r = data[index * 4], g = data[index * 4 + 1], b = data[index * 4 + 2];
+        const toBack = nearest(r, g, b, backColors), toFore = nearest(r, g, b, foreColors);
+        share[local] = toBack / (toBack + toFore + 1e-6);
+      }
+    }
+    // 2) 벽과 옷 색이 비슷하면 픽셀 하나하나는 들쭉날쭉하므로, 주변과 평균 내서 덩어리로 판단한다.
+    const soft = boxBlur(boxBlur(share, w, h, 2), w, h, 2);
+    // 3) 원래 남아 있던 옷에서 이어지는 곳만 되살린다. 떨어진 벽 조각은 옷 색과 비슷해도 살리지 않는다.
+    const reach = new Uint8Array(w * h);
+    const queue = [];
+    for (let local = 0; local < w * h; local += 1) {
+      if (alpha[(y0 + Math.floor(local / w)) * width + x0 + local % w] >= 250) { reach[local] = 1; queue.push(local); }
+    }
+    while (queue.length) {
+      const local = queue.pop();
+      const x = local % w, y = (local - x) / w;
+      for (const near of [x > 0 ? local - 1 : -1, x < w - 1 ? local + 1 : -1, y > 0 ? local - w : -1, y < h - 1 ? local + w : -1]) {
+        if (near < 0 || reach[near] || !covered[near] || soft[near] < .5) continue;
+        reach[near] = 1;
+        queue.push(near);
+      }
+    }
+    // 4) 되살린 옷에 둘러싸여 바깥 배경과 이어지지 않는 구멍(주름 사이 밝은 곳 등)은 옷으로 채운다.
+    const outside = new Uint8Array(w * h);
+    for (let local = 0; local < w * h; local += 1) {
+      if (!covered[local] && !reach[local] && alpha[(y0 + Math.floor(local / w)) * width + x0 + local % w] <= 5) { outside[local] = 1; queue.push(local); }
+    }
+    while (queue.length) {
+      const local = queue.pop();
+      const x = local % w, y = (local - x) / w;
+      for (const near of [x > 0 ? local - 1 : -1, x < w - 1 ? local + 1 : -1, y > 0 ? local - w : -1, y < h - 1 ? local + w : -1]) {
+        if (near < 0 || outside[near] || reach[near]) continue;
+        outside[near] = 1;
+        queue.push(near);
+      }
+    }
+    for (let local = 0; local < w * h; local += 1) {
+      if (!covered[local]) continue;
+      let target = 0;
+      // 옷으로 판단된 곳과 그 안의 구멍은 반투명하게 남기지 않고 완전히 불투명하게 만든다.
+      if (reach[local] || !outside[local]) target = 255;
+      const index = (y0 + Math.floor(local / w)) * width + x0 + local % w;
+      if (target > alpha[index]) alpha[index] = Math.round(alpha[index] + (target - alpha[index]) * covered[local] / 255);
+    }
+    // 5) 되살린 가장자리가 계단처럼 보이지 않게 사진의 색 경계에 맞춘다(문지른 자리 안에서만).
+    const snapped = new Uint8Array(alpha);
+    const r = Math.max(2, Math.round(Math.max(width, height) / 1024 * 1.5));
+    guidedTile(data, alpha, snapped, width, { x0, y0, x1, y1 }, { x0, y0, x1, y1 }, r, .0006);
+    for (let local = 0; local < w * h; local += 1) {
+      if (!covered[local]) continue;
+      const index = (y0 + Math.floor(local / w)) * width + x0 + local % w;
+      alpha[index] = snapped[index];
     }
   }
 
@@ -658,7 +771,7 @@
     if (!stroke) return;
     const ctx = previewCanvas.getContext("2d");
     ctx.save();
-    ctx.strokeStyle = stroke.type === "erase" ? "rgba(230, 40, 60, .5)" : stroke.type === "smooth" ? "rgba(21, 101, 216, .35)" : "rgba(20, 160, 90, .5)";
+    ctx.strokeStyle = stroke.type === "erase" ? "rgba(230, 40, 60, .5)" : stroke.type === "smooth" ? "rgba(21, 101, 216, .35)" : stroke.type === "keep" ? "rgba(240, 160, 20, .45)" : "rgba(20, 160, 90, .5)";
     ctx.fillStyle = ctx.strokeStyle;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
