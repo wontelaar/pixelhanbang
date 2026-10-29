@@ -349,7 +349,7 @@
         closeImage(image);
         const source = await new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("encode failed")), "image/png"));
         return removeBackground(source, {
-          model: "isnet_quint8",
+          model: "isnet_fp16",
           proxyToWorker: false,
           output: { format: "image/png", quality: 1 },
           progress: (key, current, total) => {
@@ -442,7 +442,47 @@
   function composeResult(source, alpha) {
     const image = new ImageData(new Uint8ClampedArray(source.data), source.width, source.height);
     for (let index = 0; index < alpha.length; index += 1) image.data[index * 4 + 3] = alpha[index];
+    cleanEdgeColors(source.data, image.data, alpha, source.width, source.height);
     return { image, alpha };
+  }
+
+  // 반투명한 가장자리 픽셀에는 벽 색이 섞여 있어, 다른 배경에 올리면 테두리가 비친다.
+  // 주변의 확실한 배경색을 빼서 옷 색만 남긴다(옅은 픽셀은 주변 옷 색으로 채운다).
+  function cleanEdgeColors(data, out, alpha, width, height) {
+    const radius = Math.max(3, Math.round(Math.max(width, height) / 1024 * 3));
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const index = y * width + x;
+        const value = alpha[index];
+        if (value === 0 || value >= 250) continue;
+        let fn = 0, fr = 0, fg = 0, fb = 0, bn = 0, br = 0, bg = 0, bb = 0;
+        const x0 = Math.max(0, x - radius), x1 = Math.min(width - 1, x + radius);
+        const y0 = Math.max(0, y - radius), y1 = Math.min(height - 1, y + radius);
+        for (let yy = y0; yy <= y1; yy += 1) {
+          for (let xx = x0; xx <= x1; xx += 1) {
+            const near = yy * width + xx;
+            const a = alpha[near];
+            if (a >= 250) { fn += 1; fr += data[near * 4]; fg += data[near * 4 + 1]; fb += data[near * 4 + 2]; }
+            else if (a <= 5) { bn += 1; br += data[near * 4]; bg += data[near * 4 + 1]; bb += data[near * 4 + 2]; }
+          }
+        }
+        if (!fn) continue;
+        const a = value / 255;
+        let r = fr / fn, g = fg / fn, b = fb / fn;
+        if (bn) {
+          // 섞인 색 = 옷 색 × a + 배경색 × (1 - a) 이므로 옷 색을 거꾸로 구한다. 옅을수록 오차가 커서 주변 옷 색 쪽으로 섞는다.
+          const weight = Math.min(1, Math.max(0, (a - .2) / .4));
+          const solve = (channel, back, fore) => {
+            const own = Math.max(0, Math.min(255, (data[index * 4 + channel] - (1 - a) * back) / a));
+            return own * weight + fore * (1 - weight);
+          };
+          r = solve(0, br / bn, r); g = solve(1, bg / bn, g); b = solve(2, bb / bn, b);
+        }
+        out[index * 4] = Math.round(r);
+        out[index * 4 + 1] = Math.round(g);
+        out[index * 4 + 2] = Math.round(b);
+      }
+    }
   }
 
   function applyEdits(file, data, alpha, width, height) {
@@ -589,7 +629,7 @@
     const cut = ctx.getImageData(0, 0, width, height).data;
     const raw = new Uint8Array(width * height);
     for (let index = 0; index < raw.length; index += 1) raw[index] = cut[index * 4 + 3];
-    const alpha = refineAlpha(source.data, raw, width, height);
+    const alpha = snapEdges(source.data, refineAlpha(source.data, raw, width, height), width, height);
     if (source === previewSource) baseCache = { file, source, alpha: new Uint8Array(alpha) };
     applyEdits(file, source.data, alpha, width, height);
     return composeResult(source, alpha);
@@ -721,6 +761,98 @@
       if (raw[index] >= 13 && raw[index] <= 242) alpha[index] = up[index * 4];
     }
     return alpha;
+  }
+
+  // AI는 사진을 1024px 정사각형으로 바꿔 판단하므로, 되돌린 경계가 계단처럼 보인다(큰 사진일수록 심하다).
+  // 원본 사진의 색 경계를 기준으로 투명도를 다시 맞춘다(색 가이드 필터). 경계가 지나가는 조각만 계산한다.
+  function snapEdges(data, alpha, width, height) {
+    const r = Math.max(2, Math.round(Math.max(width, height) / 1024 * 1.5));
+    const eps = .0006;
+    const tile = 192;
+    const out = new Uint8Array(alpha);
+    for (let ty = 0; ty < height; ty += tile) {
+      for (let tx = 0; tx < width; tx += tile) {
+        const tx1 = Math.min(width, tx + tile), ty1 = Math.min(height, ty + tile);
+        const x0 = Math.max(0, tx - 2 * r), y0 = Math.max(0, ty - 2 * r);
+        const x1 = Math.min(width, tx1 + 2 * r), y1 = Math.min(height, ty1 + 2 * r);
+        let low = 255, high = 0;
+        for (let y = y0; y < y1 && !(low < 8 && high > 247); y += 1) {
+          for (let x = x0; x < x1; x += 1) {
+            const value = alpha[y * width + x];
+            if (value < low) low = value;
+            if (value > high) high = value;
+          }
+        }
+        if (high < 8 || low > 247) continue;
+        guidedTile(data, alpha, out, width, { x0, y0, x1, y1 }, { x0: tx, y0: ty, x1: tx1, y1: ty1 }, r, eps);
+      }
+    }
+    return out;
+  }
+
+  function guidedTile(data, alpha, out, width, region, inner, r, eps) {
+    const w = region.x1 - region.x0, h = region.y1 - region.y0;
+    const stride = w + 1;
+    const n = w * h;
+    const R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n), P = new Float32Array(n);
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const source = (region.y0 + y) * width + region.x0 + x;
+        const index = y * w + x;
+        R[index] = data[source * 4] / 255;
+        G[index] = data[source * 4 + 1] / 255;
+        B[index] = data[source * 4 + 2] / 255;
+        P[index] = alpha[source] / 255;
+      }
+    }
+    const integral = (value) => {
+      const sum = new Float64Array(stride * (h + 1));
+      for (let y = 0; y < h; y += 1) {
+        let row = 0;
+        for (let x = 0; x < w; x += 1) {
+          row += value(y * w + x);
+          sum[(y + 1) * stride + x + 1] = sum[y * stride + x + 1] + row;
+        }
+      }
+      return sum;
+    };
+    const mean = (sum, x, y) => {
+      const ax = Math.max(0, x - r), ay = Math.max(0, y - r);
+      const bx = Math.min(w, x + r + 1), by = Math.min(h, y + r + 1);
+      return (sum[by * stride + bx] - sum[ay * stride + bx] - sum[by * stride + ax] + sum[ay * stride + ax]) / ((bx - ax) * (by - ay));
+    };
+    const sR = integral(i => R[i]), sG = integral(i => G[i]), sB = integral(i => B[i]), sP = integral(i => P[i]);
+    const sRP = integral(i => R[i] * P[i]), sGP = integral(i => G[i] * P[i]), sBP = integral(i => B[i] * P[i]);
+    const sRR = integral(i => R[i] * R[i]), sRG = integral(i => R[i] * G[i]), sRB = integral(i => R[i] * B[i]);
+    const sGG = integral(i => G[i] * G[i]), sGB = integral(i => G[i] * B[i]), sBB = integral(i => B[i] * B[i]);
+    // 경계 바로 옆 구간마다 "색 → 투명도" 관계(a, b)를 구하고, 그 평균으로 원본 픽셀의 투명도를 다시 낸다.
+    const aR = new Float32Array(n), aG = new Float32Array(n), aB = new Float32Array(n), bb = new Float32Array(n);
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const mr = mean(sR, x, y), mg = mean(sG, x, y), mb = mean(sB, x, y), mp = mean(sP, x, y);
+        const cr = mean(sRP, x, y) - mr * mp, cg = mean(sGP, x, y) - mg * mp, cb = mean(sBP, x, y) - mb * mp;
+        const rr = mean(sRR, x, y) - mr * mr + eps, rg = mean(sRG, x, y) - mr * mg, rb = mean(sRB, x, y) - mr * mb;
+        const gg = mean(sGG, x, y) - mg * mg + eps, gb = mean(sGB, x, y) - mg * mb, b2 = mean(sBB, x, y) - mb * mb + eps;
+        const i11 = gg * b2 - gb * gb, i12 = rb * gb - rg * b2, i13 = rg * gb - rb * gg;
+        const i22 = rr * b2 - rb * rb, i23 = rb * rg - rr * gb, i33 = rr * gg - rg * rg;
+        const det = rr * i11 + rg * i12 + rb * i13;
+        const index = y * w + x;
+        aR[index] = (i11 * cr + i12 * cg + i13 * cb) / det;
+        aG[index] = (i12 * cr + i22 * cg + i23 * cb) / det;
+        aB[index] = (i13 * cr + i23 * cg + i33 * cb) / det;
+        bb[index] = mp - aR[index] * mr - aG[index] * mg - aB[index] * mb;
+      }
+    }
+    const qR = integral(i => aR[i]), qG = integral(i => aG[i]), qB = integral(i => aB[i]), qb = integral(i => bb[i]);
+    for (let y = inner.y0; y < inner.y1; y += 1) {
+      for (let x = inner.x0; x < inner.x1; x += 1) {
+        const lx = x - region.x0, ly = y - region.y0;
+        const index = ly * w + lx;
+        const value = mean(qR, lx, ly) * R[index] + mean(qG, lx, ly) * G[index] + mean(qB, lx, ly) * B[index] + mean(qb, lx, ly);
+        // 경계가 흐려지지 않게 중간값 쪽을 조금 또렷하게 당긴다.
+        out[y * width + x] = Math.max(0, Math.min(255, Math.round(((value - .5) * 1.8 + .5) * 255)));
+      }
+    }
   }
 
   function matteAlpha(data, raw, width, height) {
