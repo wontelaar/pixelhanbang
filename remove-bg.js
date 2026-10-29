@@ -974,7 +974,8 @@
   // 그래서 흔적이 있는 곳 중에서 벽보다 옷 색에 가깝고 남은 옷과 이어진 부분만 되살린다.
   function recoverMissing(data, alpha, raw, width, height) {
     const n = width * height;
-    const hinted = (index) => raw[index] >= 1 && alpha[index] < 128;
+    // 반투명하게 남은 곳(AI가 '반쯤 옷'으로 본 소매)도 후보로 본다.
+    const hinted = (index) => raw[index] >= 1 && alpha[index] < 250;
     let hints = 0;
     for (let index = 0; index < n; index += 1) if (hinted(index)) hints += 1;
     if (!hints) return alpha;
@@ -986,7 +987,7 @@
     const edgeLimit = Math.max(4, Math.round(Math.max(width, height) * .02));
     const inside = new Int32Array(n).fill(-1);
     const queue = [];
-    for (let index = 0; index < n; index += 1) if (alpha[index] < 128) { inside[index] = 0; queue.push(index); }
+    for (let index = 0; index < n; index += 1) if (alpha[index] < 250) { inside[index] = 0; queue.push(index); }
     for (let head = 0; head < queue.length; head += 1) {
       const index = queue[head];
       if (inside[index] >= edgeLimit) continue;
@@ -1027,7 +1028,7 @@
     };
     const share = new Float32Array(n);
     for (let index = 0; index < n; index += 1) {
-      if (alpha[index] >= 128) { share[index] = 1; continue; }
+      if (alpha[index] >= 250) { share[index] = 1; continue; }
       if (!hinted(index)) continue;
       const r = data[index * 4], g = data[index * 4 + 1], b = data[index * 4 + 2];
       const toBack = nearest(r, g, b, backColors), toFore = nearest(r, g, b, foreColors);
@@ -1036,7 +1037,7 @@
     const soft = boxBlur(boxBlur(share, width, height, 1), width, height, 1);
     // 남은 옷에서 흔적을 따라 이어지는 곳만 되살린다.
     const reach = new Uint8Array(n);
-    for (let index = 0; index < n; index += 1) if (alpha[index] >= 128) { reach[index] = 1; queue.push(index); }
+    for (let index = 0; index < n; index += 1) if (alpha[index] >= 250) { reach[index] = 1; queue.push(index); }
     while (queue.length) {
       const index = queue.pop();
       for (const near of neighbors(index)) {
@@ -1059,7 +1060,7 @@
     const grown = new Float32Array(n);
     let garment = 0;
     for (let index = 0; index < n; index += 1) {
-      if (alpha[index] >= 128) { garment += 1; continue; }
+      if (alpha[index] >= 250) { garment += 1; continue; }
       if (reach[index] || (hinted(index) && !outside[index])) grown[index] = 1;
     }
     // 가늘게 뻗은 줄은 소매가 아니므로 걷어 낸다(가는 줄은 깎이고, 굵은 소매만 남는다).
@@ -1073,8 +1074,9 @@
     let added = 0;
     for (let index = 0; index < n; index += 1) {
       if (!grown[index] || opened[index] <= 0) continue;
+      // 반투명하던 곳을 채운 건 세지 않고, 거의 투명하던 곳을 새로 붙인 것만 센다.
+      if (alpha[index] < 128) added += 1;
       out[index] = 255;
-      added += 1;
     }
     // 한꺼번에 너무 많이 붙으면 잘못 잡은 것으로 보고 되돌린다.
     if (added > garment * .12) return alpha;
