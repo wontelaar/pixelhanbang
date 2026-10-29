@@ -857,3 +857,8 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .file-list.is-selectable .file-row { cursor: pointer; }
 .file-row.is-selected { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(21, 101, 216, .18); }
 .range-row.hidden { display: none; }
+
+.handoff { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.handoff-row { display: flex; gap: 8px; }
+.handoff-row select { flex: 1; min-width: 0; }
+.handoff-row .button { flex: none; min-height: 40px; padding: 8px 14px; }

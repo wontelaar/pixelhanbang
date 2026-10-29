@@ -20,7 +20,8 @@
       for (let x = 0; x < w; x += 1) {
         const index = Math.min(height - 1, Math.floor(y / scale)) * width + Math.min(width - 1, Math.floor(x / scale));
         const r = data[index * 4], g = data[index * 4 + 1], b = data[index * 4 + 2];
-        light[y * w + x] = (r + g + b) / 3;
+        // 배경을 없앤 사진의 투명한 곳은 검게 저장돼 있어 옷걸이로 오해하지 않게 밝게 본다.
+        light[y * w + x] = data[index * 4 + 3] < 128 ? 255 : (r + g + b) / 3;
         chroma[y * w + x] = Math.max(r, g, b) - Math.min(r, g, b);
       }
     }
@@ -28,7 +29,8 @@
     const top = [];
     for (let y = 0; y < Math.max(2, Math.round(h * .04)); y += 1) for (let x = 0; x < w; x += 1) top.push(light[y * w + x]);
     top.sort((a, b) => a - b);
-    const wall = top[Math.floor(top.length / 2)];
+    // 투명 배경이면 벽 밝기를 알 수 없으니 흔한 흰 벽 밝기로 본다.
+    const wall = Math.min(top[Math.floor(top.length / 2)], 200);
     for (const limit of [Math.min(90, wall * .5), Math.min(55, wall * .35)]) {
       const mask = grow(light, chroma, w, h, limit);
       if (!mask) continue;
@@ -176,7 +178,38 @@
   // mask(1 = 채울 곳)를 주변으로 채운 RGBA를 새로 돌려준다. 채울 곳 주변만 잘라 AI에 넘기고,
   // 잘라낸 조각이 크면 줄여서 처리한 뒤 채운 자리에만 늘려 붙인다.
   async function inpaint(image, mask, options = {}) {
-    const { width, height, data } = image;
+    const { width, height } = image;
+    let data = image.data;
+    // 투명한 곳이 있는 사진(배경을 없앤 사진)은 흰 바탕에 얹어 색을 채우고,
+    // 투명도도 같은 방식으로 한 번 더 채워 옷걸이 고리처럼 바깥으로 나간 곳은 투명하게, 목 안쪽은 불투명하게 이어 준다.
+    let transparent = false;
+    for (let index = 3; index < data.length; index += 4) if (data[index] < 250) { transparent = true; break; }
+    if (transparent && !options.alphaPass) {
+      const flat = new Uint8ClampedArray(data.length);
+      const alphaImage = new Uint8ClampedArray(data.length);
+      for (let index = 0; index < data.length; index += 4) {
+        const a = data[index + 3] / 255;
+        flat[index] = data[index] * a + 255 * (1 - a);
+        flat[index + 1] = data[index + 1] * a + 255 * (1 - a);
+        flat[index + 2] = data[index + 2] * a + 255 * (1 - a);
+        flat[index + 3] = 255;
+        alphaImage[index] = alphaImage[index + 1] = alphaImage[index + 2] = data[index + 3];
+        alphaImage[index + 3] = 255;
+      }
+      const color = await inpaint(new ImageData(flat, width, height), mask, { ...options, alphaPass: true });
+      const shape = await inpaint(new ImageData(alphaImage, width, height), mask, { ...options, alphaPass: true });
+      const out = new Uint8ClampedArray(data);
+      for (let index = 0; index < mask.length; index += 1) {
+        const value = shape.data[index * 4];
+        if (value === data[index * 4 + 3] && color.data[index * 4] === flat[index * 4] && color.data[index * 4 + 1] === flat[index * 4 + 1]) continue;
+        out[index * 4] = color.data[index * 4];
+        out[index * 4 + 1] = color.data[index * 4 + 1];
+        out[index * 4 + 2] = color.data[index * 4 + 2];
+        // 반쯤 채워진 값은 또렷하게 갈라 흐릿한 유령 자국이 남지 않게 한다.
+        out[index * 4 + 3] = value < 96 ? 0 : value > 160 ? 255 : Math.round((value - 96) / 64 * 255);
+      }
+      return new ImageData(out, width, height);
+    }
     let minX = width, minY = height, maxX = -1, maxY = -1;
     for (let index = 0; index < mask.length; index += 1) {
       if (!mask[index]) continue;

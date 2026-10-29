@@ -110,6 +110,8 @@
       closeImage(image);
       file = candidate;
       image = decoded;
+      // 배경을 없앤 PNG처럼 투명할 수 있는 사진은 투명함이 유지되게 PNG로 저장한다.
+      if (candidate.type === "image/png") format.value = "png";
       renderFile();
       zoom.value = "100";
       zoomValue.textContent = "100%";
@@ -285,27 +287,34 @@
     sizeNote.textContent = `저장 크기: ${size.width} × ${size.height}` + (upscale ? " · 잘라낸 부분보다 커서 조금 흐려질 수 있어요" : "");
   }
 
+  if (window.PixelHandoff) window.PixelHandoff.mount(status, async () => image && file ? (await makeCrop()).output : null);
+
+  async function makeCrop() {
+    const region = cropRegion();
+    const size = outputDimensions(region);
+    const mime = format.value === "png" ? "image/png" : format.value === "webp" ? "image/webp" : "image/jpeg";
+    const result = document.createElement("canvas");
+    result.width = size.width;
+    result.height = size.height;
+    const ctx = result.getContext("2d", { alpha: mime !== "image/jpeg" });
+    if (mime === "image/jpeg") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size.width, size.height);
+    }
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(image, region.x, region.y, region.width, region.height, 0, 0, size.width, size.height);
+    const blob = await new Promise((resolve, reject) => result.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .92));
+    return { size, output: { blob, name: outputName(file.name, mime) } };
+  }
+
   async function saveCrop() {
     if (!image || !file) return;
     processButton.disabled = true;
     setStatus("잘라낸 사진을 저장하고 있어요…", "");
     try {
-      const region = cropRegion();
-      const size = outputDimensions(region);
-      const mime = format.value === "png" ? "image/png" : format.value === "webp" ? "image/webp" : "image/jpeg";
-      const result = document.createElement("canvas");
-      result.width = size.width;
-      result.height = size.height;
-      const ctx = result.getContext("2d", { alpha: mime !== "image/jpeg" });
-      if (mime === "image/jpeg") {
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, size.width, size.height);
-      }
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(image, region.x, region.y, region.width, region.height, 0, 0, size.width, size.height);
-      const blob = await new Promise((resolve, reject) => result.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .92));
-      downloadBlob(blob, outputName(file.name, mime));
-      setStatus(`${size.width} × ${size.height} 사진 저장 준비 완료 · ${formatBytes(blob.size)}`, "success");
+      const { size, output } = await makeCrop();
+      downloadBlob(output.blob, output.name);
+      setStatus(`${size.width} × ${size.height} 사진 저장 준비 완료 · ${formatBytes(output.blob.size)}`, "success");
     } catch (error) {
       console.error(error);
       setStatus("저장하지 못했어요. 저장 크기를 줄여 다시 시도해 주세요.", "error");

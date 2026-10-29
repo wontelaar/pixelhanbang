@@ -1253,6 +1253,12 @@
     updatePreview();
   }
 
+  // 미리보기 중인 사진의 결과를 다른 도구로 넘긴다(여러 장을 골랐으면 미리보기 중인 한 장).
+  if (window.PixelHandoff) window.PixelHandoff.mount(status, async () => {
+    const file = currentPreviewFile();
+    return file ? processOne(file) : null;
+  });
+
   async function processFiles() {
     if (!files.length) return;
     processButton.disabled = true;

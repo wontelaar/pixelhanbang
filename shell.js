@@ -72,6 +72,95 @@
     `).join("");
   });
 
+  // 지금 편집한 사진을 저장하지 않고 다른 도구로 바로 넘긴다. 사진은 이 브라우저(IndexedDB)에 잠깐 담았다가
+  // 다음 도구가 열리면 꺼내서 지운다. 서버로는 보내지 않는다.
+  const handoffTools = ["remove-bg", "hanger-remove", "tag-remove", "crop", "mosaic", "watermark", "resize", "compress", "square", "convert"];
+  const openStore = () => new Promise((resolve, reject) => {
+    const request = indexedDB.open("pixelhanbang-handoff", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("photo");
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  const storeAction = async (mode, action) => {
+    const db = await openStore();
+    try {
+      return await new Promise((resolve, reject) => {
+        const request = action(db.transaction("photo", mode).objectStore("photo"));
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    } finally {
+      db.close();
+    }
+  };
+
+  window.PixelHandoff = {
+    // anchor 뒤에 "이어서 편집" 줄을 붙인다. getResult는 { blob, name }을 돌려주는 함수.
+    mount(anchor, getResult) {
+      if (!anchor || !window.indexedDB) return null;
+      const box = document.createElement("div");
+      box.className = "handoff";
+      const label = document.createElement("label");
+      label.className = "setting-label";
+      label.textContent = "지금 사진 그대로 이어서 편집";
+      const row = document.createElement("div");
+      row.className = "handoff-row";
+      const select = document.createElement("select");
+      select.setAttribute("aria-label", "이어서 쓸 도구");
+      handoffTools.filter(key => key !== current).map(key => links.find(link => link[0] === key)).filter(Boolean).forEach(([key, href, name]) => {
+        const option = document.createElement("option");
+        option.value = href;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "button button-secondary";
+      button.textContent = "보내기";
+      const note = document.createElement("p");
+      note.className = "setting-hint";
+      note.textContent = "저장하지 않고 고른 도구로 바로 넘어가요. 투명한 배경도 그대로 넘어가요.";
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        note.textContent = "사진을 넘길 준비를 하고 있어요…";
+        try {
+          const result = await getResult();
+          if (!result || !result.blob) throw new Error("no result");
+          await storeAction("readwrite", store => store.put({ blob: result.blob, name: result.name, time: Date.now() }, "current"));
+          location.href = select.value + "?handoff=1";
+        } catch (error) {
+          console.error(error);
+          note.textContent = "사진을 넘기지 못했어요. 먼저 사진을 고르고 다시 시도하거나, 저장한 뒤 다른 도구에서 열어 주세요.";
+          button.disabled = false;
+        }
+      });
+      row.append(select, button);
+      box.append(label, row, note);
+      anchor.after(box);
+      return { box, setEnabled(enabled) { button.disabled = !enabled; } };
+    }
+  };
+
+  // 다른 도구에서 넘긴 사진이 있으면, 도구 스크립트가 준비된 뒤 사진 선택 칸에 넣어 준다.
+  if (new URLSearchParams(location.search).has("handoff") && window.indexedDB) {
+    window.addEventListener("load", async () => {
+      try {
+        const item = await storeAction("readonly", store => store.get("current"));
+        await storeAction("readwrite", store => store.delete("current"));
+        history.replaceState(null, "", location.pathname);
+        const input = document.querySelector("#fileInput");
+        // 30분이 지난 사진은 쓰지 않는다(뒤로 가기 등으로 다시 열린 경우).
+        if (!item || !input || Date.now() - item.time > 30 * 60 * 1000) return;
+        const transfer = new DataTransfer();
+        transfer.items.add(new File([item.blob], item.name, { type: item.blob.type || "image/png" }));
+        input.files = transfer.files;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+
   const footer = document.querySelector("#siteFooter");
   if (footer) {
     footer.className = "site-footer";

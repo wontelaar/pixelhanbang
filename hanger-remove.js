@@ -34,6 +34,7 @@
   let stroke = null;
   let busy = false;
   let panning = false;
+  let handoff = null;
   let pan = null;
 
   chooseButton.addEventListener("click", () => input.click());
@@ -79,6 +80,8 @@
     setStatus("한 단계 되돌렸어요.", "");
   });
   processButton.addEventListener("click", saveImage);
+  handoff = window.PixelHandoff ? window.PixelHandoff.mount(status, makeResult) : null;
+  if (handoff) handoff.setEnabled(false);
 
   zoom.addEventListener("input", () => setZoom(Number(zoom.value)));
   zoomIn.addEventListener("click", () => setZoom(Number(zoom.value) + 50));
@@ -310,6 +313,8 @@
     if (!work) return;
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingQuality = "high";
+    // 투명한 사진은 전에 그린 빨간 표시가 비쳐 보이지 않게 먼저 비운다.
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(work, 0, 0, canvas.width, canvas.height);
     if (!painted) return;
     // 칠한 곳을 빨간 반투명으로 겹쳐 보여준다.
@@ -330,6 +335,7 @@
     clearPaintButton.disabled = !hasWork || !painted || busy;
     undoButton.disabled = !history.length || busy;
     processButton.disabled = !hasWork || busy;
+    if (handoff) handoff.setEnabled(hasWork && !busy);
     brush.disabled = !hasWork;
     brushMode.disabled = !hasWork;
     findButton.disabled = !hasWork || busy;
@@ -369,15 +375,21 @@
     }
   }
 
+  async function makeResult() {
+    if (!work || !file) return null;
+    const mime = file.type === "image/png" ? "image/png" : file.type === "image/webp" ? "image/webp" : "image/jpeg";
+    const blob = await new Promise((resolve, reject) => work.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .95));
+    const base = file.name.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "-").slice(0, 80) || "image";
+    const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
+    return { blob, name: `${base}-nohanger.${ext}` };
+  }
+
   async function saveImage() {
     if (!work || !file) return;
     processButton.disabled = true;
     try {
-      const mime = file.type === "image/png" ? "image/png" : file.type === "image/webp" ? "image/webp" : "image/jpeg";
-      const blob = await new Promise((resolve, reject) => work.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .95));
-      const base = file.name.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "-").slice(0, 80) || "image";
-      const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
-      downloadBlob(blob, `${base}-nohanger.${ext}`);
+      const { blob, name } = await makeResult();
+      downloadBlob(blob, name);
       setStatus(`${work.width} × ${work.height} 저장 준비 완료 · ${formatBytes(blob.size)}`, "success");
     } catch (error) {
       console.error(error);

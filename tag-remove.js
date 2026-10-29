@@ -35,6 +35,7 @@
   let sessionPromise = null;
   let busy = false;
   let panning = false;
+  let handoff = null;
   let pan = null;
 
   chooseButton.addEventListener("click", () => input.click());
@@ -75,6 +76,8 @@
     setStatus("한 단계 되돌렸어요.", "");
   });
   processButton.addEventListener("click", saveImage);
+  handoff = window.PixelHandoff ? window.PixelHandoff.mount(status, makeResult) : null;
+  if (handoff) handoff.setEnabled(false);
 
   zoom.addEventListener("input", () => setZoom(Number(zoom.value)));
   zoomIn.addEventListener("click", () => setZoom(Number(zoom.value) + 50));
@@ -277,6 +280,8 @@
     if (!work) return;
     const ctx = canvas.getContext("2d");
     ctx.imageSmoothingQuality = "high";
+    // 투명한 사진은 전에 그린 빨간 표시가 비쳐 보이지 않게 먼저 비운다.
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(work, 0, 0, canvas.width, canvas.height);
     if (!painted) return;
     // 칠한 곳을 빨간 반투명으로 겹쳐 보여준다.
@@ -297,6 +302,7 @@
     clearPaintButton.disabled = !hasWork || !painted || busy;
     undoButton.disabled = !history.length || busy;
     processButton.disabled = !hasWork || busy;
+    if (handoff) handoff.setEnabled(hasWork && !busy);
     brush.disabled = !hasWork;
     [zoom, zoomIn, zoomOut, panButton].forEach(control => { control.disabled = !hasWork; });
     paintNote.textContent = !hasWork ? "" : painted ? "칠한 곳이 빨갛게 보여요. ‘택 지우기’를 누르세요." : "택이 덮이도록 조금 넉넉하게 칠해 주세요.";
@@ -384,9 +390,11 @@
       const imageData = new Uint8Array(size * 3);
       const painted01 = new Uint8Array(size);
       for (let index = 0; index < size; index += 1) {
-        imageData[index] = before.data[index * 4];
-        imageData[size + index] = before.data[index * 4 + 1];
-        imageData[size * 2 + index] = before.data[index * 4 + 2];
+        // 배경을 없앤 사진은 투명한 곳이 검게 저장돼 있어, 흰 바탕에 얹은 색으로 AI에 넘긴다.
+        const a = before.data[index * 4 + 3] / 255;
+        imageData[index] = before.data[index * 4] * a + 255 * (1 - a);
+        imageData[size + index] = before.data[index * 4 + 1] * a + 255 * (1 - a);
+        imageData[size * 2 + index] = before.data[index * 4 + 2] * a + 255 * (1 - a);
         painted01[index] = maskPixels[index * 4 + 3] > 0 ? 1 : 0;
       }
       // 택 테두리와 그림자가 칠한 경계에 걸쳐 있으면 AI가 그 선을 배경으로 알고 이어 그린다.
@@ -422,15 +430,21 @@
     }
   }
 
+  async function makeResult() {
+    if (!work || !file) return null;
+    const mime = file.type === "image/png" ? "image/png" : file.type === "image/webp" ? "image/webp" : "image/jpeg";
+    const blob = await new Promise((resolve, reject) => work.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .95));
+    const base = file.name.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "-").slice(0, 80) || "image";
+    const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
+    return { blob, name: `${base}-notag.${ext}` };
+  }
+
   async function saveImage() {
     if (!work || !file) return;
     processButton.disabled = true;
     try {
-      const mime = file.type === "image/png" ? "image/png" : file.type === "image/webp" ? "image/webp" : "image/jpeg";
-      const blob = await new Promise((resolve, reject) => work.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .95));
-      const base = file.name.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "-").slice(0, 80) || "image";
-      const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
-      downloadBlob(blob, `${base}-notag.${ext}`);
+      const { blob, name } = await makeResult();
+      downloadBlob(blob, name);
       setStatus(`${work.width} × ${work.height} 저장 준비 완료 · ${formatBytes(blob.size)}`, "success");
     } catch (error) {
       console.error(error);

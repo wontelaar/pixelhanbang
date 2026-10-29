@@ -248,18 +248,25 @@
     ctx.restore();
   }
 
+  if (window.PixelHandoff) window.PixelHandoff.mount(status, async () => image && file ? makeResult() : null);
+
+  async function makeResult() {
+    const mime = file.type === "image/png" ? "image/png" : file.type === "image/webp" ? "image/webp" : "image/jpeg";
+    const result = document.createElement("canvas");
+    result.width = image.width;
+    result.height = image.height;
+    render(result);
+    const blob = await new Promise((resolve, reject) => result.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .92));
+    return { blob, name: outputName(file.name, mime) };
+  }
+
   async function saveImage() {
     if (!image || !file || !regions.length) return;
     processButton.disabled = true;
     setStatus("가린 사진을 저장하고 있어요…", "");
     try {
-      const mime = file.type === "image/png" ? "image/png" : file.type === "image/webp" ? "image/webp" : "image/jpeg";
-      const result = document.createElement("canvas");
-      result.width = image.width;
-      result.height = image.height;
-      render(result);
-      const blob = await new Promise((resolve, reject) => result.toBlob(value => value ? resolve(value) : reject(new Error("save failed")), mime, .92));
-      downloadBlob(blob, outputName(file.name, mime));
+      const { blob, name } = await makeResult();
+      downloadBlob(blob, name);
       setStatus(`가린 곳 ${regions.length}개 · ${image.width} × ${image.height} 저장 준비 완료`, "success");
     } catch (error) {
       console.error(error);
