@@ -822,7 +822,7 @@
   function refineAlpha(data, raw, width, height) {
     const limit = 1000;
     const scale = Math.min(1, limit / Math.max(width, height));
-    if (scale === 1) return matteAlpha(data, raw, width, height);
+    if (scale === 1) return recoverMissing(data, matteAlpha(data, raw, width, height), raw, width, height);
     const w = Math.max(1, Math.round(width * scale));
     const h = Math.max(1, Math.round(height * scale));
     const pack = (fill) => {
@@ -852,7 +852,7 @@
     });
     const smallRaw = new Uint8Array(w * h);
     for (let index = 0; index < smallRaw.length; index += 1) smallRaw[index] = smallMask[index * 4];
-    const refined = matteAlpha(smallColor, smallRaw, w, h);
+    const refined = recoverMissing(smallColor, matteAlpha(smallColor, smallRaw, w, h), smallRaw, w, h);
     const refinedImage = new ImageData(w, h);
     for (let index = 0; index < refined.length; index += 1) {
       refinedImage.data[index * 4] = refined[index];
@@ -871,7 +871,8 @@
     const up = bigCtx.getImageData(0, 0, width, height).data;
     const alpha = new Uint8Array(raw);
     for (let index = 0; index < alpha.length; index += 1) {
-      if (raw[index] >= 13 && raw[index] <= 242) alpha[index] = up[index * 4];
+      // 애매했던 곳과, 잘려 나갔다가 되살아난 곳(소매 등)만 작은 사본의 결과로 바꾼다.
+      if ((raw[index] >= 13 && raw[index] <= 242) || up[index * 4] > raw[index] + 40) alpha[index] = up[index * 4];
     }
     return alpha;
   }
@@ -966,6 +967,118 @@
         out[y * width + x] = Math.max(0, Math.min(255, Math.round(((value - .5) * 1.8 + .5) * 255)));
       }
     }
+  }
+
+  // AI가 옷 일부(벽 앞에 늘어진 소매 등)를 배경으로 잘라 버린 경우를 되살린다.
+  // AI는 이렇게 버린 곳에도 아주 옅은 흔적(1~12)을 남기고, 벽·그림자는 정확히 0으로 둔다.
+  // 그래서 흔적이 있는 곳 중에서 벽보다 옷 색에 가깝고 남은 옷과 이어진 부분만 되살린다.
+  function recoverMissing(data, alpha, raw, width, height) {
+    const n = width * height;
+    const hinted = (index) => raw[index] >= 1 && alpha[index] < 128;
+    let hints = 0;
+    for (let index = 0; index < n; index += 1) if (hinted(index)) hints += 1;
+    if (!hints) return alpha;
+    const neighbors = (index) => {
+      const x = index % width, y = (index - x) / width;
+      return [x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1, y > 0 ? index - width : -1, y < height - 1 ? index + width : -1];
+    };
+    // 옷 색 표본은 가장자리 근처 천에서, 벽 색 표본은 흔적이 전혀 없는 투명한 곳에서 뽑는다.
+    const edgeLimit = Math.max(4, Math.round(Math.max(width, height) * .02));
+    const inside = new Int32Array(n).fill(-1);
+    const queue = [];
+    for (let index = 0; index < n; index += 1) if (alpha[index] < 128) { inside[index] = 0; queue.push(index); }
+    for (let head = 0; head < queue.length; head += 1) {
+      const index = queue[head];
+      if (inside[index] >= edgeLimit) continue;
+      for (const near of neighbors(index)) {
+        if (near < 0 || inside[near] >= 0) continue;
+        inside[near] = inside[index] + 1;
+        queue.push(near);
+      }
+    }
+    const fore = [], back = [];
+    for (let index = 0; index < n; index += 1) {
+      if (alpha[index] >= 250 && inside[index] > 0) fore.push(index);
+      else if (alpha[index] <= 5 && raw[index] === 0) back.push(index);
+    }
+    if (fore.length < 50 || back.length < 50) return alpha;
+    const pick = (list) => {
+      const step = Math.max(1, Math.floor(list.length / 500));
+      const out = [];
+      for (let k = 0; k < list.length; k += step) out.push([data[list[k] * 4], data[list[k] * 4 + 1], data[list[k] * 4 + 2]]);
+      return out;
+    };
+    const foreColors = pick(fore), backColors = pick(back);
+    const distance = (r, g, b, c) => {
+      const light = (r + g + b - c[0] - c[1] - c[2]) / 3;
+      const warm = (r - g) - (c[0] - c[1]);
+      const blue = (b - g) - (c[2] - c[1]);
+      return .35 * light * light + 2.5 * (warm * warm + blue * blue);
+    };
+    const nearest = (r, g, b, colors) => {
+      let a = Infinity, bb = Infinity, cc = Infinity;
+      for (const c of colors) {
+        const value = distance(r, g, b, c);
+        if (value < a) { cc = bb; bb = a; a = value; }
+        else if (value < bb) { cc = bb; bb = value; }
+        else if (value < cc) cc = value;
+      }
+      return Math.sqrt((a + bb + cc) / 3);
+    };
+    const share = new Float32Array(n);
+    for (let index = 0; index < n; index += 1) {
+      if (alpha[index] >= 128) { share[index] = 1; continue; }
+      if (!hinted(index)) continue;
+      const r = data[index * 4], g = data[index * 4 + 1], b = data[index * 4 + 2];
+      const toBack = nearest(r, g, b, backColors), toFore = nearest(r, g, b, foreColors);
+      share[index] = toBack / (toBack + toFore + 1e-6);
+    }
+    const soft = boxBlur(boxBlur(share, width, height, 1), width, height, 1);
+    // 남은 옷에서 흔적을 따라 이어지는 곳만 되살린다.
+    const reach = new Uint8Array(n);
+    for (let index = 0; index < n; index += 1) if (alpha[index] >= 128) { reach[index] = 1; queue.push(index); }
+    while (queue.length) {
+      const index = queue.pop();
+      for (const near of neighbors(index)) {
+        if (near < 0 || reach[near] || !hinted(near) || soft[near] < .5) continue;
+        reach[near] = 1;
+        queue.push(near);
+      }
+    }
+    // 되살린 옷에 둘러싸인 흔적 구멍(주름 그늘 등)도 채운다. 바깥과 이어진 곳은 그대로 둔다.
+    const outside = new Uint8Array(n);
+    for (let index = 0; index < n; index += 1) if (!reach[index] && !hinted(index)) { outside[index] = 1; queue.push(index); }
+    while (queue.length) {
+      const index = queue.pop();
+      for (const near of neighbors(index)) {
+        if (near < 0 || outside[near] || reach[near]) continue;
+        outside[near] = 1;
+        queue.push(near);
+      }
+    }
+    const grown = new Float32Array(n);
+    let garment = 0;
+    for (let index = 0; index < n; index += 1) {
+      if (alpha[index] >= 128) { garment += 1; continue; }
+      if (reach[index] || (hinted(index) && !outside[index])) grown[index] = 1;
+    }
+    // 가늘게 뻗은 줄은 소매가 아니므로 걷어 낸다(가는 줄은 깎이고, 굵은 소매만 남는다).
+    const thin = Math.max(2, Math.round(Math.max(width, height) * .004));
+    const body = new Float32Array(n);
+    for (let index = 0; index < n; index += 1) body[index] = alpha[index] >= 128 ? 1 : grown[index];
+    const eroded = boxBlur(body, width, height, thin);
+    for (let index = 0; index < n; index += 1) eroded[index] = eroded[index] > .999 ? 1 : 0;
+    const opened = boxBlur(eroded, width, height, thin);
+    const out = new Uint8Array(alpha);
+    let added = 0;
+    for (let index = 0; index < n; index += 1) {
+      if (!grown[index] || opened[index] <= 0) continue;
+      out[index] = 255;
+      added += 1;
+    }
+    // 한꺼번에 너무 많이 붙으면 잘못 잡은 것으로 보고 되돌린다.
+    if (added > garment * .12) return alpha;
+    return out;
   }
 
   function matteAlpha(data, raw, width, height) {
