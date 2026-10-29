@@ -24,6 +24,23 @@
   const wandTol = document.querySelector("#wandTol");
   const wandTolValue = document.querySelector("#wandTolValue");
   const wandUndo = document.querySelector("#wandUndo");
+  const touchTool = document.querySelector("#touchTool");
+  const touchHint = document.querySelector("#touchHint");
+  const brushRow = document.querySelector("#brushRow");
+  const brushSize = document.querySelector("#brushSize");
+  const brushSizeValue = document.querySelector("#brushSizeValue");
+  const wandRow = document.querySelector("#wandRow");
+  const zoom = document.querySelector("#zoom");
+  const zoomIn = document.querySelector("#zoomIn");
+  const zoomOut = document.querySelector("#zoomOut");
+  const zoomValue = document.querySelector("#zoomValue");
+  const panButton = document.querySelector("#panButton");
+  const PREVIEW_LONG = 1600;
+  let panning = false;
+  let pan = null;
+  let stroke = null;
+  let lastResult = null;
+  let baseCache = null;   // 미리보기 크기의 AI 기본 알파(손보기 전)를 다시 계산하지 않게 보관
   const bgFill = document.querySelector("#bgFill");
   const bgColorRow = document.querySelector("#bgColorRow");
   const bgColor = document.querySelector("#bgColor");
@@ -89,6 +106,78 @@
     schedulePreview();
   });
   wandTol.addEventListener("input", () => { wandTolValue.textContent = wandTol.value; });
+  brushSize.addEventListener("input", () => { brushSizeValue.textContent = brushSize.value; });
+  touchTool.addEventListener("change", () => {
+    const wand = touchTool.value === "wand";
+    brushRow.classList.toggle("hidden", wand);
+    wandRow.classList.toggle("hidden", !wand);
+    touchHint.textContent = wand
+      ? "남은 배경을 한 번 누르면 비슷한 색으로 이어진 부분이 투명해져요. 덜 지워지면 범위를 높이고, 옷까지 지워지면 낮추세요."
+      : touchTool.value === "restore"
+        ? "잘못 지워진 옷 부분을 칠하면 원래대로 돌아와요."
+        : "미리보기에서 남은 배경 위를 마우스나 손가락으로 칠하면 투명해져요. 작은 곳은 ＋로 확대해서 칠하세요.";
+  });
+  zoom.addEventListener("input", () => setZoom(Number(zoom.value)));
+  zoomIn.addEventListener("click", () => setZoom(Number(zoom.value) + 50));
+  zoomOut.addEventListener("click", () => setZoom(Number(zoom.value) - 50));
+  panButton.addEventListener("click", () => {
+    panning = !panning;
+    panButton.setAttribute("aria-pressed", String(panning));
+    previewStage.classList.toggle("is-panning", panning);
+  });
+  previewStage.addEventListener("wheel", event => {
+    if (!previewSource || !(event.ctrlKey || event.metaKey)) return;
+    event.preventDefault();
+    setZoom(Number(zoom.value) + (event.deltaY < 0 ? 25 : -25), event);
+  }, { passive: false });
+  window.addEventListener("resize", () => { if (previewSource) setZoom(Number(zoom.value)); });
+
+  previewCanvas.addEventListener("pointerdown", event => {
+    if (!previewSource) return;
+    if (panning) {
+      event.preventDefault();
+      previewCanvas.setPointerCapture(event.pointerId);
+      pan = { x: event.clientX, y: event.clientY, left: previewStage.scrollLeft, top: previewStage.scrollTop };
+      return;
+    }
+    if (removeMethod.value !== "ai" || !previewAlpha) return;
+    event.preventDefault();
+    previewCanvas.setPointerCapture(event.pointerId);
+    stroke = { type: touchTool.value, points: [toPreviewPoint(event)], startX: event.clientX, startY: event.clientY, moved: false };
+    if (stroke.type !== "wand") drawStrokeOverlay();
+  });
+  previewCanvas.addEventListener("pointermove", event => {
+    if (pan) {
+      previewStage.scrollLeft = pan.left - (event.clientX - pan.x);
+      previewStage.scrollTop = pan.top - (event.clientY - pan.y);
+      return;
+    }
+    if (!stroke || stroke.type === "wand") return;
+    stroke.points.push(toPreviewPoint(event));
+    drawStrokeOverlay();
+  });
+  ["pointerup", "pointercancel"].forEach(type => previewCanvas.addEventListener(type, event => {
+    if (previewCanvas.hasPointerCapture(event.pointerId)) previewCanvas.releasePointerCapture(event.pointerId);
+    if (pan) {
+      pan = null;
+      return;
+    }
+    if (!stroke) return;
+    const current = stroke;
+    stroke = null;
+    if (type === "pointercancel") {
+      drawLast();
+      return;
+    }
+    if (current.type === "wand") {
+      eraseFromPreview(event);
+      return;
+    }
+    const file = currentPreviewFile();
+    if (!edits.has(file)) edits.set(file, []);
+    edits.get(file).push({ type: current.type, points: current.points, r: brushRadius() / Math.max(previewSource.width, previewSource.height) });
+    updatePreview();
+  }));
   wandUndo.addEventListener("click", () => {
     const list = edits.get(currentPreviewFile());
     if (list && list.length) list.pop();
@@ -111,8 +200,7 @@
     updatePreview();
   });
   previewStage.addEventListener("click", event => {
-    if (removeMethod.value === "ai") eraseFromPreview(event);
-    else chooseColorFromPreview(event);
+    if (removeMethod.value !== "ai" && !panning) chooseColorFromPreview(event);
   });
   previewStage.addEventListener("keydown", event => {
     if ((event.key === "Enter" || event.key === " ") && previewSource) {
@@ -183,6 +271,7 @@
   async function loadPreview() {
     previewSource = null;
     previewAlpha = null;
+    lastResult = null;
     const file = currentPreviewFile();
     if (!file) {
       previewWrap.classList.remove("is-visible");
@@ -193,7 +282,7 @@
     try {
       setStatus("미리보기를 만들고 있어요…", "");
       const image = await decodeImage(file);
-      const scale = Math.min(1, 900 / image.width, 620 / image.height);
+      const scale = Math.min(1, PREVIEW_LONG / Math.max(image.width, image.height));
       const width = Math.max(1, Math.round(image.width * scale));
       const height = Math.max(1, Math.round(image.height * scale));
       const sourceCanvas = document.createElement("canvas");
@@ -209,6 +298,7 @@
       previewCanvas.height = height;
       previewWrap.classList.add("is-visible");
       previewTitle.textContent = files.length > 1 ? `${file.name} 미리보기` : "미리보기";
+      setZoom(100);
       updatePreview();
       setStatus(files.length + "장 선택됨", "");
     } catch (error) {
@@ -286,12 +376,13 @@
       const result = await aiResult(file, source);
       if (sequence !== previewSequence || removeMethod.value !== "ai" || source !== previewSource) return;
       previewAlpha = result.alpha;
+      lastResult = result.image;
       paintResult(previewCanvas, result.image);
       const count = (edits.get(file) || []).length;
       wandUndo.disabled = count === 0;
       selectedColorNote.textContent = count
-        ? `누른 곳 ${count}군데를 지웠어요. 남은 배경이 있으면 더 눌러 주세요.`
-        : "AI 결과예요. 남은 배경이 있으면 그 부분을 눌러서 지울 수 있어요.";
+        ? `${count}번 손봤어요. 남은 곳이 있으면 더 칠하거나, ‘한 단계 되돌리기’로 취소하세요.`
+        : "AI 결과예요. 남은 배경은 붓으로 칠해서 지울 수 있어요.";
       setStatus(files.length + "장 선택됨", "");
     } catch (error) {
       console.error(error);
@@ -336,6 +427,63 @@
 
   // AI 결과 알파를 source 크기로 받아, 옷 안쪽이 반투명하게 빠진 곳을 채우고 눌러서 지운 곳을 반영한다.
   async function aiResult(file, source) {
+    // 미리보기에서는 손볼 때마다 AI 알파를 다시 계산하지 않고, 보관해 둔 기본 알파에 손본 내용만 다시 적용한다.
+    if (baseCache && baseCache.file === file && baseCache.source === source) {
+      const alpha = new Uint8Array(baseCache.alpha);
+      applyEdits(file, source.data, alpha, source.width, source.height);
+      return composeResult(source, alpha);
+    }
+    const result = await computeAiResult(file, source);
+    return result;
+  }
+
+  function composeResult(source, alpha) {
+    const image = new ImageData(new Uint8ClampedArray(source.data), source.width, source.height);
+    for (let index = 0; index < alpha.length; index += 1) image.data[index * 4 + 3] = alpha[index];
+    return { image, alpha };
+  }
+
+  function applyEdits(file, data, alpha, width, height) {
+    (edits.get(file) || []).forEach(item => {
+      if (item.type === "erase" || item.type === "restore") paintStroke(alpha, width, height, item);
+      else clearSimilar(data, alpha, width, height, item);
+    });
+  }
+
+  // 붓으로 칠한 자리를 같은 비율로 다시 그려, 지우기는 투명하게·되살리기는 불투명하게 바꾼다.
+  function paintStroke(alpha, width, height, item) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const radius = Math.max(.5, item.r * Math.max(width, height));
+    ctx.strokeStyle = "#fff";
+    ctx.fillStyle = "#fff";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = radius * 2;
+    ctx.beginPath();
+    item.points.forEach((point, index) => {
+      const x = point.x * width, y = point.y * height;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    if (item.points.length === 1) {
+      ctx.arc(item.points[0].x * width, item.points[0].y * height, radius, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
+    const mask = ctx.getImageData(0, 0, width, height).data;
+    const value = item.type === "erase" ? 0 : 255;
+    for (let index = 0; index < alpha.length; index += 1) {
+      const coverage = mask[index * 4 + 3];
+      if (!coverage) continue;
+      alpha[index] = coverage === 255 ? value : Math.round(alpha[index] + (value - alpha[index]) * coverage / 255);
+    }
+  }
+
+  async function computeAiResult(file, source) {
     const cutout = await createImageBitmap(await aiCutout(file));
     const { width, height } = source;
     const canvas = document.createElement("canvas");
@@ -349,10 +497,77 @@
     const raw = new Uint8Array(width * height);
     for (let index = 0; index < raw.length; index += 1) raw[index] = cut[index * 4 + 3];
     const alpha = refineAlpha(source.data, raw, width, height);
-    (edits.get(file) || []).forEach(point => clearSimilar(source.data, alpha, width, height, point));
-    const image = new ImageData(new Uint8ClampedArray(source.data), width, height);
-    for (let index = 0; index < alpha.length; index += 1) image.data[index * 4 + 3] = alpha[index];
-    return { image, alpha };
+    if (source === previewSource) baseCache = { file, source, alpha: new Uint8Array(alpha) };
+    applyEdits(file, source.data, alpha, width, height);
+    return composeResult(source, alpha);
+  }
+
+  function toPreviewPoint(event) {
+    const rect = previewCanvas.getBoundingClientRect();
+    return {
+      x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
+      y: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height))
+    };
+  }
+
+  // 붓 크기는 확대해도 화면에서 같은 크기로 보이게, 미리보기 픽셀 기준 반지름을 배율만큼 줄인다.
+  function brushRadius() {
+    const rect = previewCanvas.getBoundingClientRect();
+    return Number(brushSize.value) / 2 * (previewCanvas.width / (rect.width || previewCanvas.width));
+  }
+
+  function drawLast() {
+    if (lastResult) paintResult(previewCanvas, lastResult);
+  }
+
+  function drawStrokeOverlay() {
+    drawLast();
+    if (!stroke) return;
+    const ctx = previewCanvas.getContext("2d");
+    ctx.save();
+    ctx.strokeStyle = stroke.type === "erase" ? "rgba(230, 40, 60, .5)" : "rgba(20, 160, 90, .5)";
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = brushRadius() * 2;
+    ctx.beginPath();
+    stroke.points.forEach((point, index) => {
+      const x = point.x * previewCanvas.width, y = point.y * previewCanvas.height;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    if (stroke.points.length === 1) {
+      ctx.arc(stroke.points[0].x * previewCanvas.width, stroke.points[0].y * previewCanvas.height, brushRadius(), 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // 화면에 맞춘 크기를 100%로 두고 확대한다. 확대하면 상자 안에서 스크롤되고, ‘이동’으로 끌어 옮길 수 있다.
+  function setZoom(value, anchorEvent) {
+    if (!previewSource) return;
+    const level = Math.max(100, Math.min(500, Math.round(value / 25) * 25));
+    const stageRect = previewStage.getBoundingClientRect();
+    const anchorX = anchorEvent ? anchorEvent.clientX - stageRect.left : previewStage.clientWidth / 2;
+    const anchorY = anchorEvent ? anchorEvent.clientY - stageRect.top : previewStage.clientHeight / 2;
+    const old = previewCanvas.getBoundingClientRect();
+    const ratioX = old.width ? (previewStage.scrollLeft + anchorX - previewCanvas.offsetLeft) / old.width : .5;
+    const ratioY = old.height ? (previewStage.scrollTop + anchorY - previewCanvas.offsetTop) / old.height : .5;
+    const style = getComputedStyle(previewStage);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const inner = previewStage.offsetWidth - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth) - padX;
+    const maxHeight = parseFloat(style.maxHeight) || 640;
+    const aspect = previewSource.width / previewSource.height;
+    const fitWidth = Math.max(80, Math.min(inner, (maxHeight - padY) * aspect));
+    const displayWidth = fitWidth * level / 100;
+    previewCanvas.style.width = `${Math.round(displayWidth)}px`;
+    zoom.value = String(level);
+    zoomValue.textContent = level + "%";
+    previewStage.scrollLeft = ratioX * displayWidth + previewCanvas.offsetLeft - anchorX;
+    previewStage.scrollTop = ratioY * displayWidth / aspect + previewCanvas.offsetTop - anchorY;
   }
 
   // AI가 애매하게(반투명) 남긴 곳을 주변 색으로 다시 판단한다.
@@ -516,7 +731,7 @@
       return;
     }
     if (!edits.has(file)) edits.set(file, []);
-    edits.get(file).push({ x, y, tol: Number(wandTol.value) });
+    edits.get(file).push({ type: "wand", x, y, tol: Number(wandTol.value) });
     updatePreview();
   }
 

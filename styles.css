@@ -856,3 +856,4 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .text-input.is-invalid { border-color: var(--danger); }
 .file-list.is-selectable .file-row { cursor: pointer; }
 .file-row.is-selected { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(21, 101, 216, .18); }
+.range-row.hidden { display: none; }

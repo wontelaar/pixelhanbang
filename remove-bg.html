@@ -38,7 +38,14 @@
             <strong id="previewTitle">미리보기</strong>
             <span>체크무늬는 투명한 부분이에요</span>
           </div>
-          <div id="previewStage" class="transparent-stage" role="button" tabindex="0" aria-label="미리보기를 눌러 제거할 배경색 선택" aria-describedby="selectedColorNote">
+          <div class="zoom-controls">
+            <button id="zoomOut" class="button button-ghost zoom-button" type="button" aria-label="축소">－</button>
+            <input id="zoom" type="range" min="100" max="500" step="25" value="100" aria-label="확대 배율">
+            <button id="zoomIn" class="button button-ghost zoom-button" type="button" aria-label="확대">＋</button>
+            <span id="zoomValue" class="range-value">100%</span>
+            <button id="panButton" class="button button-ghost" type="button" aria-pressed="false">이동</button>
+          </div>
+          <div id="previewStage" class="transparent-stage mosaic-stage zoom-stage" role="button" tabindex="0" aria-label="미리보기에서 남은 배경 손보기" aria-describedby="selectedColorNote">
             <canvas id="previewCanvas"></canvas>
           </div>
           <p id="selectedColorNote" class="selected-color-note">첫 번째 사진으로 결과를 미리 보여드려요.</p>
@@ -56,14 +63,22 @@
           <p id="methodHint" class="setting-hint">AI가 옷·사람·물건을 찾아 나머지를 지워요. 벽지나 방 안처럼 배경이 복잡해도 돼요. 처음에는 AI 파일을 받느라 시간이 걸려요.</p>
         </div>
         <div id="wandGroup" class="setting-group">
-          <label class="setting-label" for="wandTol">남은 배경 눌러서 지우기</label>
-          <p class="setting-hint">옷걸이 안쪽 벽처럼 남은 배경을 미리보기에서 누르면, 누른 곳과 비슷한 색으로 이어진 부분이 투명해져요.</p>
-          <div class="range-row">
+          <label class="setting-label" for="touchTool">남은 배경 손보기</label>
+          <select id="touchTool">
+            <option value="erase" selected>붓으로 지우기</option>
+            <option value="restore">붓으로 되살리기 (잘못 지운 곳)</option>
+            <option value="wand">눌러서 비슷한 색 지우기</option>
+          </select>
+          <p id="touchHint" class="setting-hint">미리보기에서 남은 배경 위를 마우스나 손가락으로 칠하면 투명해져요. 작은 곳은 ＋로 확대해서 칠하세요.</p>
+          <div id="brushRow" class="range-row">
+            <input id="brushSize" type="range" min="4" max="80" value="24" aria-label="붓 크기">
+            <span id="brushSizeValue" class="range-value">24</span>
+          </div>
+          <div id="wandRow" class="range-row hidden">
             <input id="wandTol" type="range" min="6" max="70" value="36" aria-label="누를 때 지우는 범위">
             <span id="wandTolValue" class="range-value">36</span>
           </div>
-          <p class="setting-hint">덜 지워지면 범위를 높이고, 옷까지 지워지면 낮춰 주세요.</p>
-          <div class="inline-actions"><button id="wandUndo" class="button button-ghost" type="button" disabled>마지막 누른 것 되돌리기</button></div>
+          <div class="inline-actions"><button id="wandUndo" class="button button-ghost" type="button" disabled>한 단계 되돌리기</button></div>
         </div>
         <div id="colorGroup" class="setting-group hidden">
           <label class="setting-label" for="backgroundMode">배경색</label>
@@ -107,7 +122,7 @@
       <h2>배경을 투명하게 만드는 방법</h2>
       <ol class="steps">
         <li>배경을 지울 사진을 최대 20장까지 선택하세요.</li>
-        <li>미리보기에서 결과를 확인하세요. 목록에서 다른 사진을 누르면 그 사진을 미리 볼 수 있어요. 옷걸이 안쪽 벽처럼 남은 배경이 있으면 미리보기에서 그 부분을 누르세요.</li>
+        <li>미리보기에서 결과를 확인하세요. 목록에서 다른 사진을 누르면 그 사진을 미리 볼 수 있어요. 남은 배경이 있으면 ‘붓으로 지우기’로 그 위를 칠하고, 옷이 잘못 지워졌으면 ‘붓으로 되살리기’로 칠하세요. ＋ 버튼으로 확대하고 ‘이동’을 켜면 화면을 옮길 수 있어요.</li>
         <li>배경을 투명으로 둘지, 흰색이나 원하는 색 코드로 채울지 고르세요.</li>
         <li>‘배경 없애고 저장’을 누르면 투명 배경은 PNG, 색 배경은 JPG로 저장됩니다.</li>
       </ol>
