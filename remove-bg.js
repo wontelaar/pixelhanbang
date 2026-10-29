@@ -19,6 +19,18 @@
   const methodHint = document.querySelector("#methodHint");
   const colorGroup = document.querySelector("#colorGroup");
   const toleranceGroup = document.querySelector("#toleranceGroup");
+  const previewTitle = document.querySelector("#previewTitle");
+  const wandGroup = document.querySelector("#wandGroup");
+  const wandTol = document.querySelector("#wandTol");
+  const wandTolValue = document.querySelector("#wandTolValue");
+  const wandUndo = document.querySelector("#wandUndo");
+  const bgFill = document.querySelector("#bgFill");
+  const bgColorRow = document.querySelector("#bgColorRow");
+  const bgColor = document.querySelector("#bgColor");
+  const bgHex = document.querySelector("#bgHex");
+  const edits = new Map();   // 사진 → 눌러서 지운 곳 [{x, y, tol}] (0~1 비율 좌표)
+  let previewFile = null;
+  let previewAlpha = null;
   const AI_MODULE_URL = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
   let removeBackgroundPromise = null;
   const aiCache = new Map();
@@ -54,6 +66,7 @@
     const color = removeMethod.value === "color";
     colorGroup.classList.toggle("hidden", !color);
     toleranceGroup.classList.toggle("hidden", !color);
+    wandGroup.classList.toggle("hidden", color);
     methodHint.textContent = color
       ? "흰 벽·촬영지처럼 한 가지 색으로 고르게 찍은 배경에 써요. 상품과 배경 색이 비슷하면 상품까지 지워질 수 있어요."
       : "AI가 옷·사람·물건을 찾아 나머지를 지워요. 벽지나 방 안처럼 배경이 복잡해도 돼요. 처음에는 AI 파일을 받느라 시간이 걸려요.";
@@ -75,7 +88,32 @@
     toleranceValue.textContent = tolerance.value;
     schedulePreview();
   });
-  previewStage.addEventListener("click", chooseColorFromPreview);
+  wandTol.addEventListener("input", () => { wandTolValue.textContent = wandTol.value; });
+  wandUndo.addEventListener("click", () => {
+    const list = edits.get(currentPreviewFile());
+    if (list && list.length) list.pop();
+    updatePreview();
+  });
+  bgFill.addEventListener("change", () => {
+    bgColorRow.classList.toggle("hidden", bgFill.value !== "color");
+    updatePreview();
+  });
+  bgColor.addEventListener("input", () => {
+    bgHex.value = bgColor.value.toUpperCase();
+    bgHex.classList.remove("is-invalid");
+    updatePreview();
+  });
+  bgHex.addEventListener("input", () => {
+    const value = normalizeHex(bgHex.value);
+    bgHex.classList.toggle("is-invalid", !value);
+    if (!value) return;
+    bgColor.value = value.toLowerCase();
+    updatePreview();
+  });
+  previewStage.addEventListener("click", event => {
+    if (removeMethod.value === "ai") eraseFromPreview(event);
+    else chooseColorFromPreview(event);
+  });
   previewStage.addEventListener("keydown", event => {
     if ((event.key === "Enter" || event.key === " ") && previewSource) {
       event.preventDefault();
@@ -117,7 +155,16 @@
       row.dataset.objectUrl = url;
       row.querySelector(".file-thumb").src = url;
       row.querySelector(".file-name").textContent = file.name;
+      if (file === currentPreviewFile()) row.classList.add("is-selected");
+      row.addEventListener("click", event => {
+        if (event.target.closest(".remove-file") || file === currentPreviewFile()) return;
+        previewFile = file;
+        renderFiles();
+        loadPreview();
+      });
       row.querySelector(".remove-file").addEventListener("click", () => {
+        edits.delete(file);
+        if (file === previewFile) previewFile = null;
         files.splice(index, 1);
         renderFiles();
         loadPreview();
@@ -125,6 +172,7 @@
       });
       fileList.appendChild(row);
     });
+    fileList.classList.toggle("is-selectable", files.length > 1);
     processButton.disabled = files.length === 0;
   }
 
@@ -134,7 +182,9 @@
 
   async function loadPreview() {
     previewSource = null;
-    if (!files[0]) {
+    previewAlpha = null;
+    const file = currentPreviewFile();
+    if (!file) {
       previewWrap.classList.remove("is-visible");
       previewCanvas.width = 0;
       previewCanvas.height = 0;
@@ -142,7 +192,7 @@
     }
     try {
       setStatus("미리보기를 만들고 있어요…", "");
-      const image = await decodeImage(files[0]);
+      const image = await decodeImage(file);
       const scale = Math.min(1, 900 / image.width, 620 / image.height);
       const width = Math.max(1, Math.round(image.width * scale));
       const height = Math.max(1, Math.round(image.height * scale));
@@ -158,6 +208,7 @@
       previewCanvas.width = width;
       previewCanvas.height = height;
       previewWrap.classList.add("is-visible");
+      previewTitle.textContent = files.length > 1 ? `${file.name} 미리보기` : "미리보기";
       updatePreview();
       setStatus(files.length + "장 선택됨", "");
     } catch (error) {
@@ -183,7 +234,7 @@
       ? hexToRgb(backgroundColor.value)
       : detectBorderColor(copy);
     removeConnectedBackground(copy, target, Number(tolerance.value));
-    previewCanvas.getContext("2d").putImageData(copy, 0, 0);
+    paintResult(previewCanvas, copy);
     if (backgroundMode.value === "auto") {
       const hex = rgbToHex(target);
       selectedColorNote.textContent = `자동으로 찾은 배경색 ${hex} · 사진을 누르면 직접 바꿀 수 있어요.`;
@@ -224,25 +275,249 @@
 
   async function updateAiPreview() {
     const sequence = ++previewSequence;
-    const file = files[0];
+    const file = currentPreviewFile();
     if (!file) return;
-    const ctx = previewCanvas.getContext("2d");
-    ctx.putImageData(previewSource, 0, 0);
-    selectedColorNote.textContent = "AI가 물건을 찾고 있어요…";
+    const source = previewSource;
+    if (!previewAlpha) {
+      previewCanvas.getContext("2d").putImageData(source, 0, 0);
+      selectedColorNote.textContent = "AI가 물건을 찾고 있어요…";
+    }
     try {
-      const cutout = await createImageBitmap(await aiCutout(file));
-      if (sequence !== previewSequence || removeMethod.value !== "ai") return;
-      ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(cutout, 0, 0, previewCanvas.width, previewCanvas.height);
-      closeImage(cutout);
-      selectedColorNote.textContent = "AI 결과예요. 체크무늬가 투명하게 저장될 부분이에요.";
+      const result = await aiResult(file, source);
+      if (sequence !== previewSequence || removeMethod.value !== "ai" || source !== previewSource) return;
+      previewAlpha = result.alpha;
+      paintResult(previewCanvas, result.image);
+      const count = (edits.get(file) || []).length;
+      wandUndo.disabled = count === 0;
+      selectedColorNote.textContent = count
+        ? `누른 곳 ${count}군데를 지웠어요. 남은 배경이 있으면 더 눌러 주세요.`
+        : "AI 결과예요. 남은 배경이 있으면 그 부분을 눌러서 지울 수 있어요.";
       setStatus(files.length + "장 선택됨", "");
     } catch (error) {
       console.error(error);
       if (sequence !== previewSequence) return;
       selectedColorNote.textContent = "AI를 불러오지 못했어요. 인터넷 연결을 확인하거나 ‘같은 색 배경 지우기’를 써 보세요.";
     }
+  }
+
+  function currentPreviewFile() {
+    return files.includes(previewFile) ? previewFile : files[0] || null;
+  }
+
+  function normalizeHex(value) {
+    const text = String(value).trim().replace(/^#/, "");
+    if (/^[0-9a-f]{3}$/i.test(text)) return "#" + text.split("").map(c => c + c).join("").toUpperCase();
+    if (/^[0-9a-f]{6}$/i.test(text)) return "#" + text.toUpperCase();
+    return null;
+  }
+
+  function fillColor() {
+    return bgFill.value === "color" ? (normalizeHex(bgHex.value) || bgColor.value) : null;
+  }
+
+  // 결과를 화면이나 저장용 캔버스에 그린다. 색 배경이면 그 색을 먼저 깔아 둔다.
+  function paintResult(target, imageData) {
+    target.width = imageData.width;
+    target.height = imageData.height;
+    const ctx = target.getContext("2d");
+    const fill = fillColor();
+    if (!fill) {
+      ctx.putImageData(imageData, 0, 0);
+      return;
+    }
+    const layer = document.createElement("canvas");
+    layer.width = imageData.width;
+    layer.height = imageData.height;
+    layer.getContext("2d").putImageData(imageData, 0, 0);
+    ctx.fillStyle = fill;
+    ctx.fillRect(0, 0, target.width, target.height);
+    ctx.drawImage(layer, 0, 0);
+  }
+
+  // AI 결과 알파를 source 크기로 받아, 옷 안쪽이 반투명하게 빠진 곳을 채우고 눌러서 지운 곳을 반영한다.
+  async function aiResult(file, source) {
+    const cutout = await createImageBitmap(await aiCutout(file));
+    const { width, height } = source;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(cutout, 0, 0, width, height);
+    closeImage(cutout);
+    const cut = ctx.getImageData(0, 0, width, height).data;
+    const raw = new Uint8Array(width * height);
+    for (let index = 0; index < raw.length; index += 1) raw[index] = cut[index * 4 + 3];
+    const alpha = refineAlpha(source.data, raw, width, height);
+    (edits.get(file) || []).forEach(point => clearSimilar(source.data, alpha, width, height, point));
+    const image = new ImageData(new Uint8ClampedArray(source.data), width, height);
+    for (let index = 0; index < alpha.length; index += 1) image.data[index * 4 + 3] = alpha[index];
+    return { image, alpha };
+  }
+
+  // AI가 애매하게(반투명) 남긴 곳을 주변 색으로 다시 판단한다.
+  // 옷걸이 안쪽 벽처럼 주변 배경과 색이 같은 곳은 투명하게, 옷 안쪽처럼 배경에서 먼 곳은 불투명하게 만든다.
+  // 큰 사진은 줄인 사본에서 계산해 애매한 픽셀에만 다시 넓혀 적용한다.
+  function refineAlpha(data, raw, width, height) {
+    const limit = 1000;
+    const scale = Math.min(1, limit / Math.max(width, height));
+    if (scale === 1) return matteAlpha(data, raw, width, height);
+    const w = Math.max(1, Math.round(width * scale));
+    const h = Math.max(1, Math.round(height * scale));
+    const pack = (fill) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const image = new ImageData(width, height);
+      for (let index = 0; index < raw.length; index += 1) fill(image.data, index);
+      canvas.getContext("2d").putImageData(image, 0, 0);
+      const small = document.createElement("canvas");
+      small.width = w;
+      small.height = h;
+      const ctx = small.getContext("2d", { willReadFrequently: true });
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(canvas, 0, 0, w, h);
+      return ctx.getImageData(0, 0, w, h).data;
+    };
+    const smallColor = pack((out, index) => {
+      out[index * 4] = data[index * 4];
+      out[index * 4 + 1] = data[index * 4 + 1];
+      out[index * 4 + 2] = data[index * 4 + 2];
+      out[index * 4 + 3] = 255;
+    });
+    const smallMask = pack((out, index) => {
+      out[index * 4] = raw[index];
+      out[index * 4 + 3] = 255;
+    });
+    const smallRaw = new Uint8Array(w * h);
+    for (let index = 0; index < smallRaw.length; index += 1) smallRaw[index] = smallMask[index * 4];
+    const refined = matteAlpha(smallColor, smallRaw, w, h);
+    const refinedImage = new ImageData(w, h);
+    for (let index = 0; index < refined.length; index += 1) {
+      refinedImage.data[index * 4] = refined[index];
+      refinedImage.data[index * 4 + 3] = 255;
+    }
+    const smallCanvas = document.createElement("canvas");
+    smallCanvas.width = w;
+    smallCanvas.height = h;
+    smallCanvas.getContext("2d").putImageData(refinedImage, 0, 0);
+    const big = document.createElement("canvas");
+    big.width = width;
+    big.height = height;
+    const bigCtx = big.getContext("2d", { willReadFrequently: true });
+    bigCtx.imageSmoothingQuality = "high";
+    bigCtx.drawImage(smallCanvas, 0, 0, width, height);
+    const up = bigCtx.getImageData(0, 0, width, height).data;
+    const alpha = new Uint8Array(raw);
+    for (let index = 0; index < alpha.length; index += 1) {
+      if (raw[index] >= 13 && raw[index] <= 242) alpha[index] = up[index * 4];
+    }
+    return alpha;
+  }
+
+  function matteAlpha(data, raw, width, height) {
+    const radius = Math.max(8, Math.round(Math.max(width, height) * .045));
+    const stride = width + 1;
+    const sums = Array.from({ length: 8 }, () => new Float32Array(stride * (height + 1)));
+    const row = new Float64Array(8);
+    for (let y = 0; y < height; y += 1) {
+      row.fill(0);
+      for (let x = 0; x < width; x += 1) {
+        const index = y * width + x;
+        const value = raw[index];
+        const r = data[index * 4], g = data[index * 4 + 1], b = data[index * 4 + 2];
+        if (value < 13) { row[0] += 1; row[1] += r; row[2] += g; row[3] += b; }
+        else if (value > 242) { row[4] += 1; row[5] += r; row[6] += g; row[7] += b; }
+        const cell = (y + 1) * stride + x + 1;
+        for (let channel = 0; channel < 8; channel += 1) sums[channel][cell] = sums[channel][cell - stride] + row[channel];
+      }
+    }
+    const box = (channel, x0, y0, x1, y1) => sums[channel][y1 * stride + x1] - sums[channel][y0 * stride + x1] - sums[channel][y1 * stride + x0] + sums[channel][y0 * stride + x0];
+    // 밝기보다 색감(따뜻한 벽 vs 회색 옷) 차이를 더 크게 본다.
+    const distance = (r, g, b, R, G, B) => {
+      const light = (r + g + b - R - G - B) / 3;
+      const warm = (r - g) - (R - G);
+      const blue = (b - g) - (B - G);
+      return Math.sqrt(.35 * light * light + 2.5 * (warm * warm + blue * blue));
+    };
+    const alpha = new Uint8Array(raw);
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const index = y * width + x;
+        const value = raw[index];
+        if (value < 13 || value > 242) continue;
+        const x0 = Math.max(0, x - radius), y0 = Math.max(0, y - radius);
+        const x1 = Math.min(width, x + radius + 1), y1 = Math.min(height, y + radius + 1);
+        const background = box(0, x0, y0, x1, y1);
+        const foreground = box(4, x0, y0, x1, y1);
+        if (background < 4) {
+          if (value > 60) alpha[index] = 255;
+          continue;
+        }
+        if (foreground < 4) continue;
+        const r = data[index * 4], g = data[index * 4 + 1], b = data[index * 4 + 2];
+        const toBackground = distance(r, g, b, box(1, x0, y0, x1, y1) / background, box(2, x0, y0, x1, y1) / background, box(3, x0, y0, x1, y1) / background);
+        const toForeground = distance(r, g, b, box(5, x0, y0, x1, y1) / foreground, box(6, x0, y0, x1, y1) / foreground, box(7, x0, y0, x1, y1) / foreground);
+        const share = toBackground / (toBackground + toForeground + 1e-6);
+        alpha[index] = Math.round(255 * Math.min(1, Math.max(0, (share - .5) * 1.8 + .5)));
+      }
+    }
+    return alpha;
+  }
+
+  // 누른 점에서 시작해, 아직 남아 있는 픽셀 중 누른 곳과 색이 비슷하게 이어진 부분을 투명하게 한다.
+  function clearSimilar(data, alpha, width, height, point) {
+    const sx = Math.min(width - 1, Math.max(0, Math.round(point.x * width)));
+    const sy = Math.min(height - 1, Math.max(0, Math.round(point.y * height)));
+    const seed = sy * width + sx;
+    if (!alpha[seed]) return;
+    const r = data[seed * 4], g = data[seed * 4 + 1], b = data[seed * 4 + 2];
+    const limit = point.tol * point.tol;
+    const near = index => {
+      const dr = data[index * 4] - r, dg = data[index * 4 + 1] - g, db = data[index * 4 + 2] - b;
+      return dr * dr + dg * dg + db * db;
+    };
+    const marked = new Uint8Array(width * height);
+    const stack = [seed];
+    marked[seed] = 1;
+    while (stack.length) {
+      const index = stack.pop();
+      const x = index % width;
+      const neighbors = [x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1, index - width, index + width];
+      for (const next of neighbors) {
+        if (next < 0 || next >= marked.length || marked[next] || !alpha[next] || near(next) > limit) continue;
+        marked[next] = 1;
+        stack.push(next);
+      }
+    }
+    // 경계에 반쯤 섞인 한 줄도 함께 지워 테두리가 남지 않게 한다.
+    const edge = limit * 3.2;
+    for (let index = 0; index < marked.length; index += 1) {
+      if (marked[index] !== 1) continue;
+      const x = index % width;
+      for (const next of [x > 0 ? index - 1 : -1, x < width - 1 ? index + 1 : -1, index - width, index + width]) {
+        if (next >= 0 && next < marked.length && !marked[next] && alpha[next] && near(next) <= edge) marked[next] = 2;
+      }
+    }
+    for (let index = 0; index < marked.length; index += 1) if (marked[index]) alpha[index] = 0;
+  }
+
+  function eraseFromPreview(event) {
+    const file = currentPreviewFile();
+    if (!previewSource || !previewAlpha || !file) return;
+    const rect = previewCanvas.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    const px = Math.min(previewSource.width - 1, Math.floor(x * previewSource.width));
+    const py = Math.min(previewSource.height - 1, Math.floor(y * previewSource.height));
+    if (!previewAlpha[py * previewSource.width + px]) {
+      selectedColorNote.textContent = "이미 투명한 곳이에요. 남아 있는 배경을 눌러 주세요.";
+      return;
+    }
+    if (!edits.has(file)) edits.set(file, []);
+    edits.get(file).push({ x, y, tol: Number(wandTol.value) });
+    updatePreview();
   }
 
   function chooseColorFromPreview(event) {
@@ -290,7 +565,8 @@
         downloadBlob(await createZip(outputs), "pixelhanbang-transparent-" + dateStamp() + ".zip");
       }
       const failureNotice = failures ? ` · ${failures}장은 처리하지 못했어요` : "";
-      setStatus(outputs.length + "개 투명 PNG 저장 준비 완료" + failureNotice, failures ? "error" : "success");
+      const kind = fillColor() ? `배경색 ${fillColor()} JPG` : "투명 PNG";
+      setStatus(`${outputs.length}개 ${kind} 저장 준비 완료` + failureNotice, failures ? "error" : "success");
     } catch (error) {
       console.error(error);
       setStatus("처리하지 못한 이미지가 있어요. 사진 수를 줄이거나 다른 파일로 다시 시도해 주세요.", "error");
@@ -300,7 +576,17 @@
   }
 
   async function processOne(file) {
-    if (removeMethod.value === "ai") return { name: outputName(file.name), blob: await aiCutout(file) };
+    if (removeMethod.value === "ai") {
+      const image = await decodeImage(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0);
+      closeImage(image);
+      const { image: result } = await aiResult(file, ctx.getImageData(0, 0, canvas.width, canvas.height));
+      return finishOutput(file, result);
+    }
     const image = await decodeImage(file);
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
@@ -313,9 +599,15 @@
       ? hexToRgb(backgroundColor.value)
       : detectBorderColor(pixels);
     removeConnectedBackground(pixels, target, Number(tolerance.value));
-    ctx.putImageData(pixels, 0, 0);
-    const blob = await canvasToBlob(canvas);
-    return { name: outputName(file.name), blob };
+    return finishOutput(file, pixels);
+  }
+
+  async function finishOutput(file, imageData) {
+    const canvas = document.createElement("canvas");
+    paintResult(canvas, imageData);
+    if (!fillColor()) return { name: outputName(file.name), blob: await canvasToBlob(canvas) };
+    const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("JPG save failed")), "image/jpeg", .95));
+    return { name: outputName(file.name).replace(/-transparent\.png$/, "-bg.jpg"), blob };
   }
 
   async function decodeImage(file) {

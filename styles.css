@@ -850,3 +850,9 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .zoom-stage { position: relative; display: block; width: 100%; overflow: auto; max-height: min(70vh, 640px); }
 .zoom-stage canvas { max-width: none; max-height: none; margin: 0 auto; }
 .zoom-stage.is-panning, .zoom-stage.is-panning canvas { cursor: grab; }
+/* 배경 없애기: 색 코드 입력, 미리볼 사진 선택 */
+.color-code-row { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; margin-top: 8px; }
+.color-code-row.hidden { display: none; }
+.text-input.is-invalid { border-color: var(--danger); }
+.file-list.is-selectable .file-row { cursor: pointer; }
+.file-row.is-selected { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(21, 101, 216, .18); }

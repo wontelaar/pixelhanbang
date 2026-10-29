@@ -5,8 +5,8 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>사진 배경 지우기 - AI로 옷·사람·물건만 남기고 투명하게 | 픽셀한방</title>
-  <meta name="description" content="AI가 사진 속 옷, 사람, 물건을 찾아 배경을 투명하게 지우고 PNG로 저장합니다. 벽지처럼 무늬 있는 배경도 됩니다. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.">
+  <title>배경 없애기·배경색 바꾸기 - AI로 옷·물건만 남기기 | 픽셀한방</title>
+  <meta name="description" content="AI가 사진 속 옷, 사람, 물건만 남기고 배경을 없애 투명 PNG로 저장하거나, 흰색 등 원하는 색(색 코드 입력 가능)으로 배경을 바꿔 줍니다. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.">
   <link rel="canonical" href="https://pixelhanbang.com/remove-bg.html">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -14,9 +14,9 @@
   <header id="siteHeader"></header>
   <main class="page-shell">
     <section class="intro">
-      <span class="eyebrow">배경 지우기</span>
-      <h1>사진 배경 지우기</h1>
-      <p class="lead">AI가 옷·사람·물건만 남기고 배경을 지워 투명 PNG로 저장해요. 벽지나 방 안처럼 배경이 복잡해도 돼요.</p>
+      <span class="eyebrow">배경 없애기 · 배경색 바꾸기</span>
+      <h1>배경 없애기 · 배경색 바꾸기</h1>
+      <p class="lead">AI가 옷·사람·물건만 남기고 배경을 없애요. 기본은 투명 배경이고, 흰색이나 원하는 색 코드로 배경을 바꿀 수도 있어요.</p>
       <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
     </section>
 
@@ -35,7 +35,7 @@
 
         <div id="previewWrap" class="preview-wrap">
           <div class="preview-head">
-            <strong>첫 번째 사진 미리보기</strong>
+            <strong id="previewTitle">미리보기</strong>
             <span>체크무늬는 투명한 부분이에요</span>
           </div>
           <div id="previewStage" class="transparent-stage" role="button" tabindex="0" aria-label="미리보기를 눌러 제거할 배경색 선택" aria-describedby="selectedColorNote">
@@ -54,6 +54,16 @@
             <option value="color">같은 색 배경 지우기</option>
           </select>
           <p id="methodHint" class="setting-hint">AI가 옷·사람·물건을 찾아 나머지를 지워요. 벽지나 방 안처럼 배경이 복잡해도 돼요. 처음에는 AI 파일을 받느라 시간이 걸려요.</p>
+        </div>
+        <div id="wandGroup" class="setting-group">
+          <label class="setting-label" for="wandTol">남은 배경 눌러서 지우기</label>
+          <p class="setting-hint">옷걸이 안쪽 벽처럼 남은 배경을 미리보기에서 누르면, 누른 곳과 비슷한 색으로 이어진 부분이 투명해져요.</p>
+          <div class="range-row">
+            <input id="wandTol" type="range" min="6" max="70" value="36" aria-label="누를 때 지우는 범위">
+            <span id="wandTolValue" class="range-value">36</span>
+          </div>
+          <p class="setting-hint">덜 지워지면 범위를 높이고, 옷까지 지워지면 낮춰 주세요.</p>
+          <div class="inline-actions"><button id="wandUndo" class="button button-ghost" type="button" disabled>마지막 누른 것 되돌리기</button></div>
         </div>
         <div id="colorGroup" class="setting-group hidden">
           <label class="setting-label" for="backgroundMode">배경색</label>
@@ -74,7 +84,19 @@
           </div>
           <p class="setting-hint">배경이 남으면 높이고, 상품까지 지워지면 낮춰 주세요.</p>
         </div>
-        <button id="processButton" class="button button-primary button-wide" type="button" disabled>배경 투명하게 저장</button>
+        <div class="setting-group">
+          <label class="setting-label" for="bgFill">배경</label>
+          <select id="bgFill">
+            <option value="transparent" selected>투명 (PNG)</option>
+            <option value="color">색으로 채우기 (JPG)</option>
+          </select>
+          <div id="bgColorRow" class="color-code-row hidden">
+            <input id="bgColor" type="color" value="#ffffff" aria-label="배경색 고르기">
+            <input id="bgHex" class="text-input" type="text" value="#FFFFFF" maxlength="7" spellcheck="false" autocomplete="off" aria-label="배경색 코드" placeholder="#FFFFFF">
+          </div>
+          <p id="bgHint" class="setting-hint">쇼핑몰 흰 배경은 #FFFFFF예요. 색 코드를 직접 입력해도 돼요.</p>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>배경 없애고 저장</button>
         <p id="status" class="status" aria-live="polite"></p>
       </aside>
     </section>
@@ -85,8 +107,9 @@
       <h2>배경을 투명하게 만드는 방법</h2>
       <ol class="steps">
         <li>배경을 지울 사진을 최대 20장까지 선택하세요.</li>
-        <li>첫 번째 사진의 미리보기에서 결과를 확인하세요. 기본은 AI가 물건만 남기는 방식이고, 흰 벽처럼 한 가지 색 배경이면 ‘같은 색 배경 지우기’로 바꿔도 됩니다.</li>
-        <li>‘배경 투명하게 저장’을 누르면 투명 PNG가 저장됩니다.</li>
+        <li>미리보기에서 결과를 확인하세요. 목록에서 다른 사진을 누르면 그 사진을 미리 볼 수 있어요. 옷걸이 안쪽 벽처럼 남은 배경이 있으면 미리보기에서 그 부분을 누르세요.</li>
+        <li>배경을 투명으로 둘지, 흰색이나 원하는 색 코드로 채울지 고르세요.</li>
+        <li>‘배경 없애고 저장’을 누르면 투명 배경은 PNG, 색 배경은 JPG로 저장됩니다.</li>
       </ol>
     </section>
     <section class="content-section">
@@ -103,7 +126,7 @@
     <section class="content-section">
       <h2>자주 묻는 질문</h2>
       <div class="faq">
-        <details><summary>벽지 앞에서 찍은 옷도 되나요?</summary><p>네. AI 방식은 배경 색이 아니라 옷의 모양을 보고 구분하므로 무늬 있는 벽지나 옷과 비슷한 색의 벽 앞에서 찍은 사진도 배경을 지울 수 있습니다.</p></details><details><summary>옷걸이도 지우고 싶어요</summary><p>AI가 옷걸이를 옷의 일부로 보고 남기는 경우가 많습니다. 배경을 지우기 전에 ‘택 지우기’ 도구로 옷걸이 부분을 칠해 먼저 지운 뒤 이 도구를 써 보세요.</p></details>
+        <details><summary>벽지 앞에서 찍은 옷도 되나요?</summary><p>네. AI 방식은 배경 색이 아니라 옷의 모양을 보고 구분하므로 무늬 있는 벽지나 옷과 비슷한 색의 벽 앞에서 찍은 사진도 배경을 지울 수 있습니다.</p></details><details><summary>옷걸이 안쪽 벽이 남아요</summary><p>둥근 목 안쪽으로 보이는 벽은 AI가 옷 안쪽 천으로 착각하기 쉬워요. 미리보기에서 그 벽을 한 번 누르면 비슷한 색으로 이어진 부분이 투명해져요. 옷까지 지워지면 ‘마지막 누른 것 되돌리기’를 누르고 범위를 낮춰 다시 누르세요.</p></details><details><summary>배경을 흰색이나 다른 색으로 바꿀 수 있나요?</summary><p>네. ‘배경’에서 ‘색으로 채우기’를 고르고 색을 고르거나 #FFFFFF 같은 색 코드를 입력하세요. 색 배경은 용량이 작은 JPG로 저장됩니다.</p></details><details><summary>옷걸이도 지우고 싶어요</summary><p>AI가 옷걸이를 옷의 일부로 보고 남기는 경우가 많습니다. 배경을 지우기 전에 ‘택 지우기’ 도구로 옷걸이 부분을 칠해 먼저 지운 뒤 이 도구를 써 보세요.</p></details>
         <details><summary>여러 장을 한꺼번에 처리할 수 있나요?</summary><p>최대 20장까지 가능하며 사진마다 따로 배경을 찾아 처리합니다. 여러 장의 결과는 하나의 ZIP 파일로 저장됩니다. AI 방식은 장마다 몇 초씩 걸리니 기다려 주세요.</p></details>
         <details><summary>결과 파일은 어떤 형식인가요?</summary><p>투명 영역을 지원하는 PNG 형식으로 저장됩니다. 원본 사진은 변경되지 않습니다.</p></details>
         <details><summary>사진이 서버에 저장되나요?</summary><p>아니요. 사진은 사용 중인 브라우저 안에서만 처리하며 사이트 서버로 전송하거나 보관하지 않습니다.</p></details><details><summary>어떤 AI를 사용하나요?</summary><p>브라우저에서 실행되는 <a href="https://github.com/imgly/background-removal-js" rel="noopener noreferrer">IMG.LY Background Removal</a> 오픈소스 기능을 이용합니다. 사진은 서버로 보내지 않습니다.</p></details><details><summary>투명 PNG를 쇼핑몰 대표이미지로 써도 되나요?</summary><p>판매처에 따라 투명 부분을 흰색이나 검정으로 표시하거나 투명 이미지를 받지 않을 수 있습니다. 대표이미지로 쓰기 전에 판매처 안내를 확인하고, 필요하면 흰 배경 JPG로 다시 저장하세요.</p></details>
