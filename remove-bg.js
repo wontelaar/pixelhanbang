@@ -115,6 +115,8 @@
       ? "남은 배경을 한 번 누르면 비슷한 색으로 이어진 부분이 투명해져요. 덜 지워지면 범위를 높이고, 옷까지 지워지면 낮추세요."
       : touchTool.value === "restore"
         ? "잘못 지워진 옷 부분을 칠하면 원래대로 돌아와요."
+        : touchTool.value === "smooth"
+        ? "자글거리는 가장자리를 따라 문지르면 삐져나온 부분만 깎여 선이 부드러워져요. 빈 곳을 채우지는 않아요."
         : "미리보기에서 남은 배경 위를 마우스나 손가락으로 칠하면 투명해져요. 작은 곳은 ＋로 확대해서 칠하세요.";
   });
   zoom.addEventListener("input", () => setZoom(Number(zoom.value)));
@@ -446,8 +448,98 @@
   function applyEdits(file, data, alpha, width, height) {
     (edits.get(file) || []).forEach(item => {
       if (item.type === "erase" || item.type === "restore") paintStroke(alpha, width, height, item);
+      else if (item.type === "smooth") smoothStroke(alpha, width, height, item);
       else clearSimilar(data, alpha, width, height, item);
     });
+  }
+
+  // 문지른 자리 안에서만 가장자리를 다듬는다. 투명도를 흐리게 섞어 매끈한 기준선을 만든 뒤
+  // 그 선 바깥으로 삐져나온 계단만 깎아 내므로, 큰 윤곽(어깨선)은 그대로 남고 배경이 새로 채워지지 않는다.
+  function smoothStroke(alpha, width, height, item) {
+    const { mask, box } = strokeMask(width, height, item);
+    if (!box) return;
+    // 흐림 폭은 붓 크기만큼(최소 3픽셀)이라, 확대해서 문질러도 몇 픽셀짜리 계단이 고르게 펴진다.
+    const blur = Math.max(3, Math.round(item.r * Math.max(width, height) * 1.2));
+    const x0 = Math.max(0, box.x0 - blur), y0 = Math.max(0, box.y0 - blur);
+    const x1 = Math.min(width, box.x1 + blur), y1 = Math.min(height, box.y1 + blur);
+    const w = x1 - x0, h = y1 - y0;
+    let values = new Float32Array(w * h);
+    for (let y = 0; y < h; y += 1) for (let x = 0; x < w; x += 1) values[y * w + x] = alpha[(y0 + y) * width + x0 + x];
+    // 상자 흐림을 세 번 겹쳐 가우스 흐림에 가깝게 만든다.
+    for (let pass = 0; pass < 3; pass += 1) values = boxBlur(values, w, h, Math.max(1, Math.round(blur / 1.7)));
+    for (let y = 0; y < h; y += 1) {
+      for (let x = 0; x < w; x += 1) {
+        const index = (y0 + y) * width + x0 + x;
+        const coverage = mask[index * 4 + 3];
+        if (!coverage) continue;
+        const soft = values[y * w + x] / 255;
+        // 깎기만 한다: 매끈한 선 바깥으로 삐져나온 부분은 지우고, 빈 곳(벽)을 옷으로 채우지는 않는다.
+        // 기준선을 홈 깊이만큼 안쪽(0.78)에 두어, 파인 홈까지 한 줄로 고르게 다듬는다.
+        const crisp = Math.min(1, Math.max(0, (soft - .78) * 3 + .5)) * 255;
+        const target = Math.min(alpha[index], crisp);
+        alpha[index] = Math.round(alpha[index] + (target - alpha[index]) * coverage / 255);
+      }
+    }
+  }
+
+  function boxBlur(values, w, h, radius) {
+    const temp = new Float32Array(values.length);
+    const out = new Float32Array(values.length);
+    for (let y = 0; y < h; y += 1) {
+      let sum = 0;
+      const row = y * w;
+      for (let x = -radius; x <= radius; x += 1) sum += values[row + Math.min(w - 1, Math.max(0, x))];
+      for (let x = 0; x < w; x += 1) {
+        temp[row + x] = sum / (radius * 2 + 1);
+        sum += values[row + Math.min(w - 1, x + radius + 1)] - values[row + Math.max(0, x - radius)];
+      }
+    }
+    for (let x = 0; x < w; x += 1) {
+      let sum = 0;
+      for (let y = -radius; y <= radius; y += 1) sum += temp[Math.min(h - 1, Math.max(0, y)) * w + x];
+      for (let y = 0; y < h; y += 1) {
+        out[y * w + x] = sum / (radius * 2 + 1);
+        sum += temp[Math.min(h - 1, y + radius + 1) * w + x] - temp[Math.max(0, y - radius) * w + x];
+      }
+    }
+    return out;
+  }
+
+  // 붓 자국을 사진 크기에 맞춰 다시 그려, 덮인 정도(0~255)와 범위를 돌려준다.
+  function strokeMask(width, height, item) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const radius = Math.max(.5, item.r * Math.max(width, height));
+    ctx.strokeStyle = "#fff";
+    ctx.fillStyle = "#fff";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = radius * 2;
+    ctx.beginPath();
+    let x0 = width, y0 = height, x1 = 0, y1 = 0;
+    item.points.forEach((point, index) => {
+      const x = point.x * width, y = point.y * height;
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    if (item.points.length === 1) {
+      ctx.arc(item.points[0].x * width, item.points[0].y * height, radius, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
+    const mask = ctx.getImageData(0, 0, width, height).data;
+    if (!item.points.length) return { mask, box: null };
+    return {
+      mask,
+      box: {
+        x0: Math.max(0, Math.floor(x0 - radius - 1)), y0: Math.max(0, Math.floor(y0 - radius - 1)),
+        x1: Math.min(width, Math.ceil(x1 + radius + 1)), y1: Math.min(height, Math.ceil(y1 + radius + 1))
+      }
+    };
   }
 
   // 붓으로 칠한 자리를 같은 비율로 다시 그려, 지우기는 투명하게·되살리기는 불투명하게 바꾼다.
@@ -525,7 +617,7 @@
     if (!stroke) return;
     const ctx = previewCanvas.getContext("2d");
     ctx.save();
-    ctx.strokeStyle = stroke.type === "erase" ? "rgba(230, 40, 60, .5)" : "rgba(20, 160, 90, .5)";
+    ctx.strokeStyle = stroke.type === "erase" ? "rgba(230, 40, 60, .5)" : stroke.type === "smooth" ? "rgba(21, 101, 216, .35)" : "rgba(20, 160, 90, .5)";
     ctx.fillStyle = ctx.strokeStyle;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
