@@ -62,6 +62,10 @@
           </select>
           <p id="methodHint" class="setting-hint">AI가 옷·사람·물건을 찾아 나머지를 지워요. 벽지나 방 안처럼 배경이 복잡해도 돼요. 처음에는 AI 파일을 받느라 시간이 걸려요.</p>
         </div>
+        <div id="hangerGroup" class="setting-group">
+          <label class="check-row"><input id="removeHanger" type="checkbox"> 옷걸이도 지우기</label>
+          <p class="setting-hint">검은 옷걸이를 찾아 먼저 지우고(목 안쪽은 AI가 원단으로 채워요) 배경을 없애요. 처음 한 번 AI 파일 약 30MB를 더 받아요.</p>
+        </div>
         <div id="wandGroup" class="setting-group">
           <label class="setting-label" for="touchTool">남은 배경 손보기</label>
           <select id="touchTool">
@@ -152,7 +156,7 @@
     <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="white-background-guide.html">흰 배경 상품사진 요령</a><a href="photo-format-guide.html">PNG와 JPG 차이</a><a href="shopping-photo-guide.html">상품사진 등록 7단계</a></p></section>
   </main>
   <footer id="siteFooter"></footer>
-  <script src="shell.js"></script>
+  <script src="shell.js"></script><script src="hanger.js"></script>
   <script src="remove-bg.js"></script>
 </body>
 </html>

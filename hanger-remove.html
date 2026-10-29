@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옷걸이 지우기 - 상품사진 옷걸이 AI로 지우기 | 픽셀한방</title>
+  <meta name="description" content="옷걸이에 걸어 찍은 상품사진에서 옷걸이를 자동으로 찾아 지우고, AI가 벽과 목 안쪽을 자연스럽게 채워 드립니다. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/hanger-remove.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="hanger-remove">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">옷걸이 지우기</span>
+      <h1>옷걸이, 자동으로 찾아 지워요</h1>
+      <p class="lead">옷걸이에 걸어 찍은 사진을 올리면 옷걸이를 찾아 표시해요. 확인하고 누르면 AI가 벽과 목 안쪽을 자연스럽게 채워요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="옷걸이 지우기 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>옷걸이를 지울 사진을 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 한 장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp">
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="hangerPreviewWrap" class="preview-wrap">
+          <div class="preview-head">
+            <strong>빨간 곳이 지워져요</strong>
+            <span id="paintNote"></span>
+          </div>
+          <div class="zoom-controls">
+            <button id="zoomOut" class="button button-ghost zoom-button" type="button" aria-label="축소" disabled>－</button>
+            <input id="zoom" type="range" min="100" max="500" step="25" value="100" aria-label="확대 배율" disabled>
+            <button id="zoomIn" class="button button-ghost zoom-button" type="button" aria-label="확대" disabled>＋</button>
+            <span id="zoomValue" class="range-value">100%</span>
+            <button id="panButton" class="button button-ghost" type="button" aria-pressed="false" disabled>이동</button>
+          </div>
+          <div id="hangerStage" class="transparent-stage mosaic-stage zoom-stage">
+            <canvas id="hangerCanvas" aria-label="사진 위를 칠해 지울 부분 지정"></canvas>
+          </div>
+          <div class="inline-actions">
+            <button id="eraseButton" class="button button-primary" type="button" disabled>옷걸이 지우기</button>
+            <button id="findButton" class="button button-ghost" type="button" disabled>자동으로 다시 찾기</button>
+            <button id="clearPaintButton" class="button button-ghost" type="button" disabled>칠한 것 모두 취소</button>
+            <button id="undoButton" class="button button-ghost" type="button" disabled>지운 것 되돌리기</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>옷걸이 지우기 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="brushMode">붓</label>
+          <select id="brushMode" disabled>
+            <option value="paint" selected>더 칠하기 (덜 잡힌 옷걸이)</option>
+            <option value="unpaint">칠한 곳 빼기 (옷까지 칠해졌을 때)</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="brush">붓 크기</label>
+          <div class="range-row">
+            <input id="brush" type="range" min="4" max="80" value="20" disabled>
+            <span id="brushValue" class="range-value">20</span>
+          </div>
+          <p class="setting-hint">옷걸이 테두리와 벽에 진 그림자는 칠한 곳보다 조금 넓게 함께 지워요.</p>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>결과 사진 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+        <p class="setting-hint">처음 지울 때 AI 파일(약 30MB)을 한 번 받아요. 와이파이에서 쓰는 것을 권해요. 배경까지 없애려면 <a href="remove-bg.html">배경 없애기</a>에서 ‘옷걸이도 지우기’를 켜세요.</p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+    <section class="content-section"><h2>옷걸이 지우는 방법</h2><ol class="steps"><li>옷걸이에 걸어 찍은 상품사진 한 장을 선택하세요.</li><li>검은 옷걸이는 자동으로 찾아 빨갛게 표시됩니다. 덜 칠해진 곳은 ‘더 칠하기’로, 옷까지 칠해진 곳은 ‘칠한 곳 빼기’로 고치세요. 작은 곳은 ＋ 버튼으로 확대하고, ‘이동’을 켠 채 끌어서 옮길 수 있습니다.</li><li>‘옷걸이 지우기’를 누르면 옷걸이 자리가 벽과 원단으로 채워집니다. 자국이 남으면 그 위를 칠하고 한 번 더 누르세요.</li><li>마음에 들면 ‘결과 사진 저장’을 누르세요.</li></ol></section>
+    <section class="content-section"><h2>어떤 사진이 잘 되나요?</h2><p>단색 벽 앞에 검은 옷걸이로 걸어 찍은 사진은 옷걸이를 자동으로 잘 찾고, 지운 자리도 벽과 목 안쪽 원단으로 자연스럽게 채워집니다. 나무·흰색·투명 옷걸이처럼 벽이나 옷과 색이 비슷한 옷걸이는 자동으로 찾지 못할 수 있으니 직접 칠해 주세요.</p><p>옷걸이가 목 안쪽을 넓게 가리고 있으면 AI가 새로 그려야 하는 면적이 커서 목 안쪽 원단 결이 조금 달라 보일 수 있습니다. 저장하기 전에 확대해서 확인하세요. 투명 배경이나 흰 배경이 필요하면 <a href="remove-bg.html">배경 없애기</a>에서 ‘옷걸이도 지우기’를 켜면 한 번에 처리됩니다.</p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>지운 자리는 AI가 그럴듯하게 채운 것이라 실제와 아주 미세하게 다를 수 있습니다. 옷의 모양이나 색을 바꾸는 용도로 쓰지 말고 옷걸이처럼 상품과 관계없는 부분만 지우세요.</li><li>처음 한 번은 AI 파일을 내려받아 시간이 걸리고, 메모리가 적은 휴대폰에서는 처리가 멈출 수 있습니다. 그럴 땐 PC에서 시도하세요.</li><li>결과는 원래 사진 크기 그대로 새 파일로 저장되며, 촬영 위치 같은 사진 정보(EXIF)는 담기지 않습니다.</li></ul></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>어떤 AI를 사용하나요?</summary><p>모바일 기기용으로 공개된 이미지 복원 모델 <a href="https://github.com/Picsart-AI-Research/MI-GAN" rel="noopener noreferrer">MI-GAN</a>(MIT 라이선스)을 브라우저 안에서 실행합니다. 옷걸이 찾기는 사진 위쪽 가운데에서 이어진 어두운 부분을 찾는 방식입니다. 사진은 서버로 보내지 않습니다.</p></details><details><summary>옷걸이를 못 찾았어요</summary><p>옷걸이 색이 벽이나 옷과 비슷하면 자동으로 찾지 못합니다. 옷걸이 위를 직접 칠한 뒤 ‘옷걸이 지우기’를 누르세요.</p></details><details><summary>잘못 지웠어요</summary><p>‘지운 것 되돌리기’를 누르면 마지막으로 지우기 전 상태로 돌아갑니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 옷걸이를 지운 사진을 새 파일로 저장합니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="white-background-guide.html">흰 배경 상품사진</a><a href="shopping-photo-guide.html">상품사진 등록 7단계</a><a href="iphone-product-photo-guide.html">아이폰 상품사진 찍기</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="hanger.js"></script><script src="hanger-remove.js"></script>
+</body>
+</html>

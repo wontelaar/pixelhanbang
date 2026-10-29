@@ -16,6 +16,8 @@
   const previewCanvas = document.querySelector("#previewCanvas");
   const selectedColorNote = document.querySelector("#selectedColorNote");
   const removeMethod = document.querySelector("#removeMethod");
+  const hangerGroup = document.querySelector("#hangerGroup");
+  const removeHanger = document.querySelector("#removeHanger");
   const methodHint = document.querySelector("#methodHint");
   const colorGroup = document.querySelector("#colorGroup");
   const toleranceGroup = document.querySelector("#toleranceGroup");
@@ -51,6 +53,7 @@
   const AI_MODULE_URL = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
   let removeBackgroundPromise = null;
   const aiCache = new Map();
+  const imageCache = [];
   let previewSequence = 0;
   let files = [];
   let previewSource = null;
@@ -84,10 +87,16 @@
     colorGroup.classList.toggle("hidden", !color);
     toleranceGroup.classList.toggle("hidden", !color);
     wandGroup.classList.toggle("hidden", color);
+    hangerGroup.classList.toggle("hidden", color);
     methodHint.textContent = color
       ? "흰 벽·촬영지처럼 한 가지 색으로 고르게 찍은 배경에 써요. 상품과 배경 색이 비슷하면 상품까지 지워질 수 있어요."
       : "AI가 옷·사람·물건을 찾아 나머지를 지워요. 벽지나 방 안처럼 배경이 복잡해도 돼요. 처음에는 AI 파일을 받느라 시간이 걸려요.";
     updatePreview();
+  });
+
+  removeHanger.addEventListener("change", () => {
+    baseCache = null;
+    loadPreview();
   });
 
   backgroundMode.addEventListener("change", () => {
@@ -285,7 +294,7 @@
     }
     try {
       setStatus("미리보기를 만들고 있어요…", "");
-      const image = await decodeImage(file);
+      const image = await sourceImage(file);
       const scale = Math.min(1, PREVIEW_LONG / Math.max(image.width, image.height));
       const width = Math.max(1, Math.round(image.width * scale));
       const height = Math.max(1, Math.round(image.height * scale));
@@ -296,7 +305,7 @@
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(image, 0, 0, width, height);
-      closeImage(image);
+      if (file !== currentPreviewFile()) return;
       previewSource = ctx.getImageData(0, 0, width, height);
       previewCanvas.width = width;
       previewCanvas.height = height;
@@ -304,7 +313,7 @@
       previewTitle.textContent = files.length > 1 ? `${file.name} 미리보기` : "미리보기";
       setZoom(100);
       updatePreview();
-      setStatus(files.length + "장 선택됨", "");
+      setStatus(useHanger() && !image.hangerFound ? "옷걸이를 찾지 못해 그대로 두었어요. 남은 옷걸이는 ‘붓으로 지우기’로 칠하세요." : files.length + "장 선택됨", "");
     } catch (error) {
       console.error(error);
       previewWrap.classList.remove("is-visible");
@@ -335,20 +344,57 @@
     }
   }
 
+  function useHanger() {
+    return removeMethod.value === "ai" && removeHanger.checked;
+  }
+
+  // 회전을 반영한 원본 크기 사진. ‘옷걸이도 지우기’를 켜면 옷걸이를 먼저 AI로 지운 사진을 준다.
+  // 큰 사진을 여러 장 들고 있지 않게 최근 두 장만 보관한다.
+  function sourceImage(file) {
+    const key = useHanger() ? "hanger" : "plain";
+    const hit = imageCache.find(item => item.file === file && item.key === key);
+    if (hit) return hit.job;
+    const job = (async () => {
+      const image = await decodeImage(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(image, 0, 0);
+      closeImage(image);
+      canvas.hangerFound = false;
+      if (key !== "hanger") return canvas;
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const mask = window.PixelHanger.findHanger(pixels.data, canvas.width, canvas.height);
+      if (!mask) return canvas;
+      setStatus("옷걸이를 지우고 있어요… 처음에는 AI 파일을 받느라 시간이 걸려요.", "");
+      // 옷걸이 테두리와 벽에 진 그림자까지 함께 지우도록 사진 긴 변의 1%만큼 넓혀 채운다.
+      const cleaned = await window.PixelHanger.inpaint(pixels, mask, { grow: Math.max(4, Math.round(Math.max(canvas.width, canvas.height) * .01)) });
+      ctx.putImageData(cleaned, 0, 0);
+      canvas.hangerFound = true;
+      return canvas;
+    })();
+    imageCache.unshift({ file, key, job });
+    imageCache.splice(2);
+    job.catch(() => {
+      const index = imageCache.findIndex(item => item.job === job);
+      if (index >= 0) imageCache.splice(index, 1);
+    });
+    return job;
+  }
+
   // AI 결과는 사진마다 한 번만 계산해 두고 미리보기와 저장에 같이 쓴다.
   function aiCutout(file) {
-    if (!aiCache.has(file)) {
+    const key = useHanger() ? "hanger" : "plain";
+    if (!aiCache.has(file)) aiCache.set(file, new Map());
+    const jobs = aiCache.get(file);
+    if (!jobs.has(key)) {
       const job = (async () => {
         if (!removeBackgroundPromise) removeBackgroundPromise = import(AI_MODULE_URL).then(module => module.removeBackground || module.default);
         const removeBackground = await removeBackgroundPromise;
         if (typeof removeBackground !== "function") throw new Error("AI module unavailable");
         // 휴대폰 사진의 회전 정보를 먼저 반영해서 넘긴다.
-        const image = await decodeImage(file);
-        const canvas = document.createElement("canvas");
-        canvas.width = image.width;
-        canvas.height = image.height;
-        canvas.getContext("2d").drawImage(image, 0, 0);
-        closeImage(image);
+        const canvas = await sourceImage(file);
         const source = await new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("encode failed")), "image/png"));
         return removeBackground(source, {
           model: "isnet_fp16",
@@ -361,10 +407,10 @@
           }
         });
       })();
-      job.catch(() => aiCache.delete(file));
-      aiCache.set(file, job);
+      job.catch(() => jobs.delete(key));
+      jobs.set(key, job);
     }
-    return aiCache.get(file);
+    return jobs.get(key);
   }
 
   async function updateAiPreview() {
@@ -1245,13 +1291,8 @@
 
   async function processOne(file) {
     if (removeMethod.value === "ai") {
-      const image = await decodeImage(file);
-      const canvas = document.createElement("canvas");
-      canvas.width = image.width;
-      canvas.height = image.height;
+      const canvas = await sourceImage(file);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      ctx.drawImage(image, 0, 0);
-      closeImage(image);
       const { image: result } = await aiResult(file, ctx.getImageData(0, 0, canvas.width, canvas.height));
       return finishOutput(file, result);
     }
