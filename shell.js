@@ -11,6 +11,7 @@
     ["stitch", "stitch.html", "이어붙이기"],
     ["split", "split.html", "긴 이미지 나누기"],
     ["remove-bg", "remove-bg.html", "배경 투명하게"],
+    ["tag-remove", "tag-remove.html", "택 지우기"],
     ["mosaic", "mosaic.html", "모자이크"],
     ["watermark", "watermark.html", "워터마크"],
     ["exif", "exif.html", "사진 정보 지우기"],
@@ -20,7 +21,7 @@
     ["grid", "grid.html", "인스타 분할"]
   ];
   // 도구가 많아 상단 메뉴에는 자주 쓰는 것만 두고, 나머지는 '전체 도구'에서 고른다.
-  const headerKeys = ["resize", "compress", "target", "convert", "heic", "crop", "remove-bg", "mosaic", "watermark"];
+  const headerKeys = ["resize", "compress", "target", "convert", "heic", "crop", "remove-bg", "tag-remove", "mosaic", "watermark"];
   const headerLinks = links.filter(([key]) => headerKeys.includes(key) || key === current);
   const header = document.querySelector("#siteHeader");
   if (header) {
@@ -47,6 +48,7 @@
       convert: "JPG·PNG·WebP로 바꾸기",
       crop: "1:1·4:5·9:16·증명사진 비율로 자르기",
       "remove-bg": "단색 배경을 지우고 투명 PNG로",
+      "tag-remove": "옷 목 택·라벨을 AI로 지우기",
       mosaic: "얼굴·송장·번호판 가리기",
       watermark: "글자·로고 워터마크 한 번에 넣기",
       stitch: "여러 장을 세로·가로로 한 장에",
