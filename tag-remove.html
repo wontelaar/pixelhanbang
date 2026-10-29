@@ -37,7 +37,14 @@
             <strong>택 위를 칠하세요</strong>
             <span id="paintNote"></span>
           </div>
-          <div class="transparent-stage mosaic-stage">
+          <div class="zoom-controls">
+            <button id="zoomOut" class="button button-ghost zoom-button" type="button" aria-label="축소" disabled>－</button>
+            <input id="zoom" type="range" min="100" max="500" step="25" value="100" aria-label="확대 배율" disabled>
+            <button id="zoomIn" class="button button-ghost zoom-button" type="button" aria-label="확대" disabled>＋</button>
+            <span id="zoomValue" class="range-value">100%</span>
+            <button id="panButton" class="button button-ghost" type="button" aria-pressed="false" disabled>이동</button>
+          </div>
+          <div id="tagStage" class="transparent-stage mosaic-stage zoom-stage">
             <canvas id="tagCanvas" aria-label="사진 위를 칠해 지울 부분 지정"></canvas>
           </div>
           <div class="inline-actions">
@@ -65,7 +72,7 @@
     </section>
 
     <nav data-tool-links aria-label="다른 사진 도구"></nav>
-    <section class="content-section"><h2>옷 택 지우는 방법</h2><ol class="steps"><li>택이 보이는 상품사진 한 장을 선택하세요.</li><li>미리보기에서 택 위를 손가락이나 마우스로 칠하세요. 칠한 곳은 빨갛게 보입니다.</li><li>‘택 지우기’를 누르면 칠한 부분이 주변 원단으로 채워집니다. 남은 곳이 있으면 다시 칠하고 한 번 더 누르세요.</li><li>마음에 들면 ‘결과 사진 저장’을 누르세요.</li></ol></section>
+    <section class="content-section"><h2>옷 택 지우는 방법</h2><ol class="steps"><li>택이 보이는 상품사진 한 장을 선택하세요.</li><li>미리보기에서 택 위를 손가락이나 마우스로 칠하세요. 칠한 곳은 빨갛게 보입니다. 택이 작으면 ＋ 버튼이나 배율 막대로 확대하고, ‘이동’을 켠 채 끌어서 택이 보이는 곳으로 옮기세요. PC에서는 Ctrl을 누른 채 마우스 휠을 돌려도 확대·축소됩니다.</li><li>‘택 지우기’를 누르면 칠한 부분이 주변 원단으로 채워집니다. 남은 곳이 있으면 다시 칠하고 한 번 더 누르세요.</li><li>마음에 들면 ‘결과 사진 저장’을 누르세요.</li></ol></section>
     <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>옷걸이에 걸어 찍은 상품사진에서 목 안쪽 택이나 사이즈 라벨이 보일 때</li><li>제조사 택이 드러나 상세페이지가 깔끔해 보이지 않을 때</li><li>원단 위 작은 실밥, 보풀, 먼지를 지우고 싶을 때</li></ul></section>
     <section class="content-section"><h2>어떤 사진이 잘 되나요?</h2><p>목 안쪽처럼 단색이거나 결이 고른 원단 위의 작은 택은 거의 티 나지 않게 지워집니다. 골지나 봉제선이 택 뒤로 지나가도 주변 선을 이어서 채워 줍니다. 택이 클수록 AI가 새로 그려야 하는 면적이 넓어지므로, 큰 택은 한 번에 칠하기보다 절반씩 나눠 두세 번에 지우면 결과가 더 자연스럽습니다.</p><p>체크나 글자 프린트처럼 뚜렷한 무늬 위에 있는 택, 접혀서 목선 자체를 가린 큰 택은 원래 무늬를 정확히 되살리기 어렵습니다. 저장하기 전에 확대해서 원단 결이 어색하지 않은지 확인하세요.</p><p class="inline-tools"><a href="shopping-photo-guide.html">상품사진 등록 7단계</a><a href="iphone-product-photo-guide.html">아이폰 상품사진 찍기</a></p></section>
     <section class="content-section"><h2>주의할 점</h2><ul><li>지운 자리는 AI가 그럴듯하게 채운 것이라 실제 원단과 아주 미세하게 다를 수 있습니다. 상품의 색이나 디자인을 바꾸는 용도로 쓰면 실물과 달라 문의가 생길 수 있으니, 택이나 먼지처럼 상품과 관계없는 부분만 지우세요.</li><li>처음 한 번은 AI 파일을 내려받아 시간이 걸리고, 메모리가 적은 휴대폰에서는 처리가 멈출 수 있습니다. 그럴 땐 PC에서 시도하세요.</li><li>결과는 원래 사진 크기 그대로 새 파일로 저장되며, 촬영 위치 같은 사진 정보(EXIF)는 담기지 않습니다.</li></ul></section>

@@ -841,3 +841,12 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .main-nav a.nav-all { color: var(--blue); font-weight: 750; }
 #tools { scroll-margin-top: 90px; }
 .button[hidden] { display: none; }
+/* 택 지우기: 확대·축소와 이동 */
+.zoom-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.zoom-controls input[type="range"] { flex: 1; min-width: 0; }
+.zoom-button { width: 40px; padding-inline: 0; }
+.zoom-controls [aria-pressed="true"] { color: #fff; background: var(--blue); }
+.upload-panel { min-width: 0; }
+.zoom-stage { position: relative; display: block; width: 100%; overflow: auto; max-height: min(70vh, 640px); }
+.zoom-stage canvas { max-width: none; max-height: none; margin: 0 auto; }
+.zoom-stage.is-panning, .zoom-stage.is-panning canvas { cursor: grab; }

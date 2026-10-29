@@ -19,6 +19,12 @@
   const undoButton = document.querySelector("#undoButton");
   const processButton = document.querySelector("#processButton");
   const status = document.querySelector("#status");
+  const stage = document.querySelector("#tagStage");
+  const zoom = document.querySelector("#zoom");
+  const zoomIn = document.querySelector("#zoomIn");
+  const zoomOut = document.querySelector("#zoomOut");
+  const zoomValue = document.querySelector("#zoomValue");
+  const panButton = document.querySelector("#panButton");
   let file = null;
   let objectUrl = null;
   let work = null;      // 지금까지 지운 결과가 쌓이는 원본 크기 캔버스
@@ -28,6 +34,8 @@
   let stroke = null;
   let sessionPromise = null;
   let busy = false;
+  let panning = false;
+  let pan = null;
 
   chooseButton.addEventListener("click", () => input.click());
   dropzone.addEventListener("click", event => {
@@ -68,15 +76,40 @@
   });
   processButton.addEventListener("click", saveImage);
 
+  zoom.addEventListener("input", () => setZoom(Number(zoom.value)));
+  zoomIn.addEventListener("click", () => setZoom(Number(zoom.value) + 50));
+  zoomOut.addEventListener("click", () => setZoom(Number(zoom.value) - 50));
+  panButton.addEventListener("click", () => {
+    panning = !panning;
+    panButton.setAttribute("aria-pressed", String(panning));
+    stage.classList.toggle("is-panning", panning);
+  });
+  // PC: Ctrl + 휠로 마우스 위치를 중심으로 확대·축소
+  stage.addEventListener("wheel", event => {
+    if (!work || !(event.ctrlKey || event.metaKey)) return;
+    event.preventDefault();
+    setZoom(Number(zoom.value) + (event.deltaY < 0 ? 25 : -25), event);
+  }, { passive: false });
+  window.addEventListener("resize", () => { if (work) setZoom(Number(zoom.value)); });
+
   canvas.addEventListener("pointerdown", event => {
     if (!work || busy) return;
     event.preventDefault();
     canvas.setPointerCapture(event.pointerId);
+    if (panning) {
+      pan = { x: event.clientX, y: event.clientY, left: stage.scrollLeft, top: stage.scrollTop };
+      return;
+    }
     stroke = toImagePoint(event);
     paintDot(stroke, stroke);
     drawPreview();
   });
   canvas.addEventListener("pointermove", event => {
+    if (pan) {
+      stage.scrollLeft = pan.left - (event.clientX - pan.x);
+      stage.scrollTop = pan.top - (event.clientY - pan.y);
+      return;
+    }
     if (!stroke) return;
     const point = toImagePoint(event);
     paintDot(stroke, point);
@@ -84,6 +117,11 @@
     drawPreview();
   });
   ["pointerup", "pointercancel"].forEach(type => canvas.addEventListener(type, event => {
+    if (pan) {
+      pan = null;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      return;
+    }
     if (!stroke) return;
     stroke = null;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
@@ -109,12 +147,9 @@
       mask.height = work.height;
       history = [];
       clearMask();
-      const fit = Math.min(1, PREVIEW_LONG / Math.max(work.width, work.height));
-      canvas.width = Math.max(1, Math.round(work.width * fit));
-      canvas.height = Math.max(1, Math.round(work.height * fit));
       renderFile();
       previewWrap.classList.add("is-visible");
-      drawPreview();
+      setZoom(100);
       updateControls();
       setStatus("택 위를 손가락이나 마우스로 칠한 뒤 ‘택 지우기’를 누르세요.", "");
       loadSession().catch(() => {});
@@ -172,8 +207,39 @@
     painted = null;
   }
 
+  // 확대해도 붓은 화면에서 같은 크기로 보이게, 사진 기준 반지름은 배율만큼 줄인다.
   function brushRadius() {
-    return Math.max(2, Number(brush.value) * Math.max(work.width, work.height) / PREVIEW_LONG / 2);
+    return Math.max(1, Number(brush.value) * Math.max(work.width, work.height) / PREVIEW_LONG / 2 / (Number(zoom.value) / 100));
+  }
+
+  // 화면에 맞춘 크기를 100%로 두고 확대한다. 미리보기 해상도도 함께 올려 확대해도 흐리지 않게 한다.
+  function setZoom(value, anchorEvent) {
+    if (!work) return;
+    const level = Math.max(100, Math.min(500, Math.round(value / 25) * 25));
+    const rect = stage.getBoundingClientRect();
+    const anchorX = anchorEvent ? anchorEvent.clientX - rect.left : stage.clientWidth / 2;
+    const anchorY = anchorEvent ? anchorEvent.clientY - rect.top : stage.clientHeight / 2;
+    const oldWidth = canvas.getBoundingClientRect().width || 1;
+    const ratioX = (stage.scrollLeft + anchorX - canvas.offsetLeft) / oldWidth;
+    const ratioY = (stage.scrollTop + anchorY - canvas.offsetTop) / (canvas.getBoundingClientRect().height || 1);
+    const style = getComputedStyle(stage);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const maxHeight = parseFloat(style.maxHeight) || 640;
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const aspect = work.width / work.height;
+    // 스크롤 막대가 생겨도 100% 크기가 바뀌지 않게 테두리 바깥 폭 기준으로 맞춘다.
+    const innerWidth = stage.offsetWidth - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth) - padX;
+    const fitWidth = Math.max(80, Math.min(innerWidth, (maxHeight - padY) * aspect));
+    const displayWidth = fitWidth * level / 100;
+    const scale = Math.min(1, displayWidth * (window.devicePixelRatio || 1) / work.width);
+    canvas.width = Math.max(1, Math.round(work.width * scale));
+    canvas.height = Math.max(1, Math.round(work.height * scale));
+    canvas.style.width = `${Math.round(displayWidth)}px`;
+    zoom.value = String(level);
+    zoomValue.textContent = level + "%";
+    drawPreview();
+    stage.scrollLeft = ratioX * displayWidth + canvas.offsetLeft - anchorX;
+    stage.scrollTop = ratioY * displayWidth / aspect + canvas.offsetTop - anchorY;
   }
 
   function toImagePoint(event) {
@@ -232,6 +298,7 @@
     undoButton.disabled = !history.length || busy;
     processButton.disabled = !hasWork || busy;
     brush.disabled = !hasWork;
+    [zoom, zoomIn, zoomOut, panButton].forEach(control => { control.disabled = !hasWork; });
     paintNote.textContent = !hasWork ? "" : painted ? "칠한 곳이 빨갛게 보여요. ‘택 지우기’를 누르세요." : "택이 덮이도록 조금 넉넉하게 칠해 주세요.";
   }
 
