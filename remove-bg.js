@@ -15,6 +15,14 @@
   const previewStage = document.querySelector("#previewStage");
   const previewCanvas = document.querySelector("#previewCanvas");
   const selectedColorNote = document.querySelector("#selectedColorNote");
+  const removeMethod = document.querySelector("#removeMethod");
+  const methodHint = document.querySelector("#methodHint");
+  const colorGroup = document.querySelector("#colorGroup");
+  const toleranceGroup = document.querySelector("#toleranceGroup");
+  const AI_MODULE_URL = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
+  let removeBackgroundPromise = null;
+  const aiCache = new Map();
+  let previewSequence = 0;
   let files = [];
   let previewSource = null;
   let previewTimer = 0;
@@ -41,6 +49,16 @@
     dropzone.classList.remove("is-over");
   }));
   dropzone.addEventListener("drop", event => addFiles([...event.dataTransfer.files]));
+
+  removeMethod.addEventListener("change", () => {
+    const color = removeMethod.value === "color";
+    colorGroup.classList.toggle("hidden", !color);
+    toleranceGroup.classList.toggle("hidden", !color);
+    methodHint.textContent = color
+      ? "흰 벽·촬영지처럼 한 가지 색으로 고르게 찍은 배경에 써요. 상품과 배경 색이 비슷하면 상품까지 지워질 수 있어요."
+      : "AI가 옷·사람·물건을 찾아 나머지를 지워요. 벽지나 방 안처럼 배경이 복잡해도 돼요. 처음에는 AI 파일을 받느라 시간이 걸려요.";
+    updatePreview();
+  });
 
   backgroundMode.addEventListener("change", () => {
     backgroundColor.disabled = backgroundMode.value !== "manual";
@@ -156,6 +174,10 @@
 
   function updatePreview() {
     if (!previewSource) return;
+    if (removeMethod.value === "ai") {
+      updateAiPreview();
+      return;
+    }
     const copy = new ImageData(new Uint8ClampedArray(previewSource.data), previewSource.width, previewSource.height);
     const target = backgroundMode.value === "manual"
       ? hexToRgb(backgroundColor.value)
@@ -168,8 +190,63 @@
     }
   }
 
+  // AI 결과는 사진마다 한 번만 계산해 두고 미리보기와 저장에 같이 쓴다.
+  function aiCutout(file) {
+    if (!aiCache.has(file)) {
+      const job = (async () => {
+        if (!removeBackgroundPromise) removeBackgroundPromise = import(AI_MODULE_URL).then(module => module.removeBackground || module.default);
+        const removeBackground = await removeBackgroundPromise;
+        if (typeof removeBackground !== "function") throw new Error("AI module unavailable");
+        // 휴대폰 사진의 회전 정보를 먼저 반영해서 넘긴다.
+        const image = await decodeImage(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        closeImage(image);
+        const source = await new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("encode failed")), "image/png"));
+        return removeBackground(source, {
+          model: "isnet_quint8",
+          proxyToWorker: false,
+          output: { format: "image/png", quality: 1 },
+          progress: (key, current, total) => {
+            if (String(key).startsWith("compute")) return;
+            const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
+            setStatus(`AI 파일을 받고 있어요${percent ? ` ${percent}%` : ""}… 처음 한 번만 받아요.`, "");
+          }
+        });
+      })();
+      job.catch(() => aiCache.delete(file));
+      aiCache.set(file, job);
+    }
+    return aiCache.get(file);
+  }
+
+  async function updateAiPreview() {
+    const sequence = ++previewSequence;
+    const file = files[0];
+    if (!file) return;
+    const ctx = previewCanvas.getContext("2d");
+    ctx.putImageData(previewSource, 0, 0);
+    selectedColorNote.textContent = "AI가 물건을 찾고 있어요…";
+    try {
+      const cutout = await createImageBitmap(await aiCutout(file));
+      if (sequence !== previewSequence || removeMethod.value !== "ai") return;
+      ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(cutout, 0, 0, previewCanvas.width, previewCanvas.height);
+      closeImage(cutout);
+      selectedColorNote.textContent = "AI 결과예요. 체크무늬가 투명하게 저장될 부분이에요.";
+      setStatus(files.length + "장 선택됨", "");
+    } catch (error) {
+      console.error(error);
+      if (sequence !== previewSequence) return;
+      selectedColorNote.textContent = "AI를 불러오지 못했어요. 인터넷 연결을 확인하거나 ‘같은 색 배경 지우기’를 써 보세요.";
+    }
+  }
+
   function chooseColorFromPreview(event) {
-    if (!previewSource) return;
+    if (!previewSource || removeMethod.value === "ai") return;
     const rect = previewCanvas.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
     const x = Math.min(previewSource.width - 1, Math.max(0, Math.floor((event.clientX - rect.left) * previewSource.width / rect.width)));
@@ -223,6 +300,7 @@
   }
 
   async function processOne(file) {
+    if (removeMethod.value === "ai") return { name: outputName(file.name), blob: await aiCutout(file) };
     const image = await decodeImage(file);
     const canvas = document.createElement("canvas");
     canvas.width = image.width;
