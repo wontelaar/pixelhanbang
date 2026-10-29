@@ -458,8 +458,9 @@
   function smoothStroke(alpha, width, height, item) {
     const { mask, box } = strokeMask(width, height, item);
     if (!box) return;
-    // 흐림 폭은 붓 크기만큼(최소 3픽셀)이라, 확대해서 문질러도 몇 픽셀짜리 계단이 고르게 펴진다.
-    const blur = Math.max(3, Math.round(item.r * Math.max(width, height) * 1.2));
+    // 흐림 폭은 붓 크기가 아니라 사진 크기 기준(긴 변의 0.4%, 최소 3픽셀)이다.
+    // 몇 픽셀짜리 계단만 펴고, 곧은 가장자리는 거의 깎지 않는다.
+    const blur = Math.max(3, Math.round(Math.max(width, height) * .004));
     const x0 = Math.max(0, box.x0 - blur), y0 = Math.max(0, box.y0 - blur);
     const x1 = Math.min(width, box.x1 + blur), y1 = Math.min(height, box.y1 + blur);
     const w = x1 - x0, h = y1 - y0;
@@ -474,8 +475,8 @@
         if (!coverage) continue;
         const soft = values[y * w + x] / 255;
         // 깎기만 한다: 매끈한 선 바깥으로 삐져나온 부분은 지우고, 빈 곳(벽)을 옷으로 채우지는 않는다.
-        // 기준선을 홈 깊이만큼 안쪽(0.78)에 두어, 파인 홈까지 한 줄로 고르게 다듬는다.
-        const crisp = Math.min(1, Math.max(0, (soft - .78) * 3 + .5)) * 255;
+        // 기준선을 홈 깊이만큼 안쪽(0.72)에 두어, 파인 홈까지 한 줄로 고르게 다듬는다.
+        const crisp = Math.min(1, Math.max(0, (soft - .72) * 3 + .5)) * 255;
         const target = Math.min(alpha[index], crisp);
         alpha[index] = Math.round(alpha[index] + (target - alpha[index]) * coverage / 255);
       }
