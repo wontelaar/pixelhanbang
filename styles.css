@@ -865,3 +865,4 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 
 .angle-steps { flex-wrap: wrap; }
 .angle-steps .button { flex: 1 1 0; min-width: 64px; }
+.dropzone[hidden] { display: none; }

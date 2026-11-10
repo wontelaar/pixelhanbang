@@ -1,10 +1,10 @@
 (() => {
   "use strict";
 
-  const EDITOR_LONG = 720;
+  const EDITOR_LONG = 1080;
   const MAX_ANGLE = 45;
-  // 사진 위를 좌우로 끌 때 1px당 돌아가는 각도. 미세 조정이 목적이라 작게 둔다.
-  const DRAG_DEGREES_PER_PX = 0.05;
+  // 가운데에 너무 가까우면 손이 조금만 움직여도 각도가 크게 튀므로, 이 반지름 안에서는 돌리지 않는다.
+  const DEAD_ZONE_PX = 24;
   const input = document.querySelector("#fileInput");
   const dropzone = document.querySelector("#dropzone");
   const chooseButton = document.querySelector("#chooseButton");
@@ -30,7 +30,7 @@
   let angle = 0;
   let quarterTurns = 0;
   let dragging = false;
-  let pointerX = 0;
+  let pointerAngle = null;
 
   chooseButton.addEventListener("click", () => input.click());
   dropzone.addEventListener("click", event => {
@@ -72,18 +72,32 @@
   });
   processButton.addEventListener("click", saveResult);
 
+  // 사진을 잡고 가운데를 중심으로 원을 그리듯 돌리면, 손이 돈 만큼 사진도 같은 방향으로 돈다.
   stage.addEventListener("pointerdown", event => {
     if (!image) return;
     dragging = true;
-    pointerX = event.clientX;
+    pointerAngle = angleAroundCenter(event);
     stage.setPointerCapture(event.pointerId);
     stage.classList.add("is-dragging");
   });
   stage.addEventListener("pointermove", event => {
     if (!dragging || !image) return;
-    setAngle(angle + (event.clientX - pointerX) * DRAG_DEGREES_PER_PX);
-    pointerX = event.clientX;
+    const current = angleAroundCenter(event);
+    if (current === null) return;
+    if (pointerAngle !== null) {
+      let delta = current - pointerAngle;
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      setAngle(angle + delta);
+    }
+    pointerAngle = current;
   });
+  stage.addEventListener("wheel", event => {
+    if (!image) return;
+    event.preventDefault();
+    const step = event.shiftKey ? 1 : 0.1;
+    setAngle(angle + (event.deltaY > 0 ? step : -step));
+  }, { passive: false });
   ["pointerup", "pointercancel"].forEach(type => stage.addEventListener(type, event => {
     dragging = false;
     stage.classList.remove("is-dragging");
@@ -95,6 +109,14 @@
     const step = event.shiftKey ? 1 : 0.1;
     setAngle(angle + (event.key === "ArrowLeft" ? -step : step));
   });
+
+  function angleAroundCenter(event) {
+    const rect = stage.getBoundingClientRect();
+    const dx = event.clientX - (rect.left + rect.width / 2);
+    const dy = event.clientY - (rect.top + rect.height / 2);
+    if (Math.hypot(dx, dy) < DEAD_ZONE_PX) return null;
+    return Math.atan2(dy, dx) * 180 / Math.PI;
+  }
 
   async function selectFile(candidate) {
     if (!candidate || !/^image\/(jpeg|png|webp)$/.test(candidate.type) || candidate.size > 25 * 1024 * 1024) {
@@ -112,9 +134,13 @@
       renderFile();
       quarterTurns = 0;
       editorWrap.classList.add("is-visible");
+      // 사진을 올린 뒤에는 큰 업로드 칸을 접어 미리보기가 작업 칸을 꽉 채우게 한다. ×로 지우면 다시 나타난다.
+      dropzone.hidden = true;
       controls.forEach(control => { control.disabled = false; });
       processButton.disabled = false;
       setAngle(0);
+      const rect = stage.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight) stage.scrollIntoView({ behavior: "smooth", block: "center" });
       setStatus("격자선에 수평선이나 상품 모서리를 맞춰 조금씩 돌려 주세요.", "");
     } catch (error) {
       console.error(error);
@@ -163,6 +189,7 @@
     image = null;
     input.value = "";
     editorWrap.classList.remove("is-visible");
+    dropzone.hidden = false;
     controls.forEach(control => { control.disabled = true; });
     processButton.disabled = true;
     sizeNote.textContent = "";
@@ -228,7 +255,8 @@
     canvas.width = editorWidth;
     canvas.height = editorHeight;
     stage.style.aspectRatio = `${editorWidth} / ${editorHeight}`;
-    stage.style.width = `min(100%, ${Math.round(Math.min(560, 520 * ratio))}px)`;
+    // 작업 칸 너비를 꽉 채우되, 세로로 긴 사진은 화면 높이를 넘지 않게 한다.
+    stage.style.width = `min(100%, calc(75vh * ${ratio.toFixed(4)}))`;
     const fit = editorWidth / size.width;
     // 잘라내기를 고르면 저장될 부분이 틀을 꽉 채우도록 확대해서 보여 준다.
     const drawScale = edgeSelect.value === "crop" ? fit / cropFactor(size.width, size.height) : fit;
