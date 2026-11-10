@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>픽셀한방</title>
+  <link>https://pixelhanbang.com/</link>
+  <description>설치 없이 쓰는 무료 사진 도구와 상품사진·SNS 이미지 실전 가이드</description>
+  <language>ko</language>
+  <atom:link href="https://pixelhanbang.com/rss.xml" rel="self" type="application/rss+xml"/>
+  <lastBuildDate>Tue, 10 Nov 2026 13:03:06 +0900</lastBuildDate>
+  <item>
+    <title>사진 밝기 조절 - 여러 장 한 번에 밝게·어둡게</title>
+    <link>https://pixelhanbang.com/brightness.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/brightness.html</guid>
+    <description>사진 여러 장을 한 번에 올려 밝게 10단계, 어둡게 10단계 중 원하는 단계로 똑같이 맞추세요. 흰 배경이 하얗게 날아가지 않도록 중간 톤 위주로 조절합니다.</description>
+    <pubDate>Tue, 10 Nov 2026 13:03:06 +0900</pubDate>
+  </item>
+  <item>
+    <title>기울어진 사진 수평 맞추기 - 사진 기울기 맞추기</title>
+    <link>https://pixelhanbang.com/straighten.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/straighten.html</guid>
+    <description>기울어진 사진 수평 맞추기, 사진 기울기 맞추기를 무료로. 격자선에 맞춰 0.1°씩 돌려 수평을 맞추세요. 돌리면서 생긴 빈 모서리는 자동으로 잘라내거나 흰색·투명으로 채울 수 있어요.</description>
+    <pubDate>Tue, 10 Nov 2026 12:52:45 +0900</pubDate>
+  </item>
+  <item>
+    <title>옷걸이 지우기 - 상품사진 옷걸이 AI로 지우기</title>
+    <link>https://pixelhanbang.com/hanger-remove.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/hanger-remove.html</guid>
+    <description>옷걸이에 걸어 찍은 상품사진에서 옷걸이를 자동으로 찾아 지우고, AI가 벽과 목 안쪽을 자연스럽게 채워 드립니다. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Thu, 29 Oct 2026 21:58:54 +0900</pubDate>
+  </item>
+  <item>
+    <title>옷 택 지우기 - 상품사진 목 라벨 AI로 지우기</title>
+    <link>https://pixelhanbang.com/tag-remove.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/tag-remove.html</guid>
+    <description>상품사진에 보이는 옷 목 택, 사이즈 라벨, 작은 얼룩을 칠하기만 하면 AI가 주변 원단으로 자연스럽게 채워 지워 드립니다. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Thu, 29 Oct 2026 16:46:35 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 워터마크 넣기 - 글자·로고 일괄 삽입 무료</title>
+    <link>https://pixelhanbang.com/watermark.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/watermark.html</guid>
+    <description>상품사진과 작업물에 상호명, 아이디, 로고 워터마크를 한 번에 넣으세요. 위치, 크기, 투명도, 바둑판 반복을 고를 수 있고 최대 30장까지 일괄 처리합니다.</description>
+    <pubDate>Tue, 27 Oct 2026 13:03:29 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 이어붙이기 - 여러 장 세로·가로로 합치기</title>
+    <link>https://pixelhanbang.com/stitch.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/stitch.html</guid>
+    <description>여러 장의 사진을 같은 폭으로 맞춰 세로나 가로로 이어붙여 한 장으로 저장하세요. 순서 변경, 사진 사이 간격, 배경색을 고를 수 있습니다.</description>
+    <pubDate>Tue, 27 Oct 2026 13:03:29 +0900</pubDate>
+  </item>
+  <item>
+    <title>긴 이미지 자르기·나누기 - 상세페이지 분할 저장</title>
+    <link>https://pixelhanbang.com/split.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/split.html</guid>
+    <description>세로로 긴 상세페이지나 캡처 이미지를 원하는 높이 또는 개수로 나눠 화질 그대로 저장하세요. 조각은 번호 순서대로 ZIP으로 묶입니다.</description>
+    <pubDate>Tue, 27 Oct 2026 13:03:29 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 위치정보·EXIF 확인하고 지우기 - 화질 그대로</title>
+    <link>https://pixelhanbang.com/exif.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/exif.html</guid>
+    <description>사진에 담긴 촬영 위치, 날짜, 기기 정보를 확인하고 화질 손실 없이 지운 사본을 저장하세요. 파일은 서버에 올리지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Tue, 27 Oct 2026 13:03:29 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 용량 KB 맞추기 - 500KB·1MB 이하로 자동 조절</title>
+    <link>https://pixelhanbang.com/target-size.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/target-size.html</guid>
+    <description>‘500KB 이하’처럼 정해진 용량을 입력하면 사진 화질과 크기를 자동으로 조절해 맞춰 드립니다. 서류 제출, 지원서, 업로드 제한에 맞출 때 쓰세요.</description>
+    <pubDate>Mon, 19 Oct 2026 19:09:55 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 모자이크·흐림 처리 - 얼굴·송장·번호판 가리기</title>
+    <link>https://pixelhanbang.com/mosaic.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/mosaic.html</guid>
+    <description>사진 위에서 드래그해 얼굴, 송장 번호, 주소, 차량 번호판을 모자이크·흐림·검정 막대로 가리세요. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Mon, 19 Oct 2026 19:09:55 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 자르기 - 1:1·4:5·9:16·증명사진 비율로 자르기</title>
+    <link>https://pixelhanbang.com/crop.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/crop.html</guid>
+    <description>정사각형, 인스타 4:5·3:4, 쇼츠 9:16, 증명사진 3.5×4.5 비율 틀에 맞춰 사진을 움직이고 확대해 원하는 부분만 잘라 저장하세요.</description>
+    <pubDate>Mon, 19 Oct 2026 19:09:55 +0900</pubDate>
+  </item>
+  <item>
+    <title>흰 배경 상품사진: 회색 배경과 그림자</title>
+    <link>https://pixelhanbang.com/white-background-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/white-background-guide.html</guid>
+    <description>흰 배경에서 찍은 상품사진이 회색으로 나오는 이유, 아이폰 노출 조절과 그림자 줄이는 촬영법, 단색 배경을 투명하게 만들 때 주의할 점을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>WebP 이미지 열기와 JPG로 바꾸는 방법</title>
+    <link>https://pixelhanbang.com/webp-to-jpg-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/webp-to-jpg-guide.html</guid>
+    <description>웹에서 저장한 사진이 WebP라서 열리지 않거나 업로드되지 않을 때, WebP가 무엇인지와 여는 방법, JPG·PNG로 바꾸는 순서, 바꿀 때 주의할 점을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 업로드 용량 초과 해결 순서</title>
+    <link>https://pixelhanbang.com/upload-size-limit-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/upload-size-limit-guide.html</guid>
+    <description>사진을 올릴 때 용량 초과나 업로드 실패가 뜨면 무엇부터 확인해야 할까요? 제한 조건 확인, 형식 점검, 픽셀 크기 축소, 화질 조절 순서로 화질 손해를 줄이며 해결하는 방법을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>스마트스토어 상품 이미지 준비 순서</title>
+    <link>https://pixelhanbang.com/smartstore-image-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/smartstore-image-guide.html</guid>
+    <description>스마트스토어에 상품을 등록하기 전 대표이미지, 추가이미지, 상세설명 이미지를 준비하는 순서와 아이폰 HEIC, 용량 초과, 모바일 확인까지 실무 기준으로 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>카톡·인스타 프로필 사진 잘림·흐림 없이</title>
+    <link>https://pixelhanbang.com/profile-photo-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/profile-photo-guide.html</guid>
+    <description>카카오톡과 인스타그램 프로필 사진이 잘리거나 흐려지는 이유를 설명하고, 정사각형 원본 준비, 가운데 배치, 적당한 크기와 형식 선택까지 순서대로 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>상품사진 색상 차이 문의 줄이기</title>
+    <link>https://pixelhanbang.com/product-color-accuracy-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/product-color-accuracy-guide.html</guid>
+    <description>사진과 실물 색이 다르다는 문의가 생기는 원인을 조명, 아이폰 자동 처리, 보정, 화면 차이로 나누어 보고 자연광 촬영과 최소 보정으로 줄이는 방법을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>PNG·스크린샷 용량이 큰 이유와 줄이는 법</title>
+    <link>https://pixelhanbang.com/png-file-size-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/png-file-size-guide.html</guid>
+    <description>스크린샷이나 PNG 이미지 용량이 몇 MB씩 나오는 이유와, 사진·글자 캡처·투명 배경 이미지별로 JPG, WebP 변환과 픽셀 축소 중 무엇을 골라 용량을 줄이면 좋은지 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 위치정보 지우고 공유하기</title>
+    <link>https://pixelhanbang.com/photo-location-privacy-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/photo-location-privacy-guide.html</guid>
+    <description>사진 파일에 촬영 위치가 남는 이유와 아이폰 공유 옵션에서 위치 끄기, 이미 찍은 사진의 위치 지우기, 앞으로 위치를 남기지 않는 설정까지 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>카톡으로 보낸 사진이 흐려질 때</title>
+    <link>https://pixelhanbang.com/kakao-photo-quality-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/kakao-photo-quality-guide.html</guid>
+    <description>카카오톡으로 보낸 사진이 흐려지는 이유와 화질 설정, 전송할 때 원본 고르기, 파일로 보내기, 받는 쪽에서 확인할 점까지 상황별로 순서대로 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>아이폰으로 의류 상품사진 찍기</title>
+    <link>https://pixelhanbang.com/iphone-product-photo-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/iphone-product-photo-guide.html</guid>
+    <description>의류 쇼핑몰을 운영하며 아이폰으로 상품사진을 찍어 온 경험을 바탕으로 자연광 활용, 카메라 설정, 초점·노출 고정, 최소한의 보정과 등록용 파일 준비를 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>인스타 사진 잘림: 1:1·4:5·세로 프로필 격자</title>
+    <link>https://pixelhanbang.com/instagram-ratio-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/instagram-ratio-guide.html</guid>
+    <description>인스타그램 게시물이 잘리는 이유를 지원 비율 1.91:1~4:5, 가로 1080픽셀 기준, 세로형 프로필 격자 변화로 나누어 설명하고 잘리지 않게 준비하는 방법을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>아이폰 HEIC 사진이 안 열릴 때 해결 방법</title>
+    <link>https://pixelhanbang.com/heic-not-opening-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/heic-not-opening-guide.html</guid>
+    <description>아이폰 사진이 HEIC라서 윈도우 PC나 웹사이트에서 열리지 않을 때, 원인과 PC에서 여는 방법, JPG로 바꾸는 방법, 앞으로 JPG로 촬영하는 아이폰 설정까지 순서대로 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 문제 해결 가이드 모음</title>
+    <link>https://pixelhanbang.com/guides.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/guides.html</guid>
+    <description>사진이 안 열리거나 용량이 넘칠 때, 공유하면 흐려질 때, 쇼핑몰 상품사진을 준비할 때 필요한 픽셀한방 가이드를 한곳에 모았습니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>어두운 색·잔무늬 옷 사진이 깨질 때</title>
+    <link>https://pixelhanbang.com/fabric-compression-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/fabric-compression-guide.html</guid>
+    <description>검정·네이비 옷 사진의 얼룩과 계단 현상, 체크·스트라이프·니트의 물결무늬가 생기는 이유를 설명하고 촬영, 축소, 압축 단계에서 줄이는 방법을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>300dpi 요구할 때 해상도·DPI·픽셀 계산법</title>
+    <link>https://pixelhanbang.com/dpi-resolution-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/dpi-resolution-guide.html</guid>
+    <description>인쇄소나 제출처가 300dpi를 요구할 때 무엇을 확인해야 할까요? 픽셀, DPI, 인화 크기의 관계와 계산식, A4·사진 인화 크기별 필요한 픽셀 수, DPI 숫자만 바꾸면 안 되는 이유를 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>서류·지원서 제출용 사진 용량과 크기 맞추기</title>
+    <link>https://pixelhanbang.com/document-photo-size-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/document-photo-size-guide.html</guid>
+    <description>입사지원서, 원서, 각종 신청서에 사진을 올릴 때 요구하는 픽셀 크기, 비율, KB 용량, 파일 형식을 맞추는 순서를 정리합니다. cm 규격을 픽셀로 바꾸는 계산법도 함께 설명합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>상세페이지 이미지가 모바일에서 느릴 때</title>
+    <link>https://pixelhanbang.com/detail-page-loading-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/detail-page-loading-guide.html</guid>
+    <description>쇼핑몰 상세페이지 이미지가 휴대폰에서 늦게 뜨거나 흐리고 깨져 보이는 원인을 픽셀 크기, 용량, 긴 한 장 이미지로 나누어 보고 줄이는 순서를 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>카페24 상품 이미지 준비와 원본 관리</title>
+    <link>https://pixelhanbang.com/cafe24-image-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/cafe24-image-guide.html</guid>
+    <description>카페24 자사몰에 상품 이미지를 올릴 때 스킨에 맞춘 비율, 상세설명 이미지 준비, 그리고 스마트스토어 등 여러 판매처에 함께 올릴 때 원본과 사본을 관리하는 방법을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>올리면 사진이 흐려지는 이유</title>
+    <link>https://pixelhanbang.com/blurry-upload-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/blurry-upload-guide.html</guid>
+    <description>블로그·SNS·쇼핑몰에 올린 사진이 흐려지는 원인인 재압축, 자동 축소, 확대 표시, 반복 저장을 설명하고 업로드 전에 할 수 있는 해결 순서를 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 15:13:40 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 정사각형 만들기 - 잘림 없이 여백 추가</title>
+    <link>https://pixelhanbang.com/square.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/square.html</guid>
+    <description>가로 또는 세로 사진을 자르지 않고 1000, 1080, 1200 픽셀 정사각형으로 만드세요. 배경색과 저장 형식을 선택할 수 있습니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>프로필·쇼츠 썸네일·분할 이미지 준비법</title>
+    <link>https://pixelhanbang.com/sns-image-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/sns-image-guide.html</guid>
+    <description>원형 프로필의 안전 여백, 동영상 썸네일 장면 선택, 인스타 3분할·9분할 순서를 실수 없이 준비하는 방법을 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>쇼츠 썸네일 만들기 - 동영상 장면 JPG 저장</title>
+    <link>https://pixelhanbang.com/shorts-thumbnail.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/shorts-thumbnail.html</guid>
+    <description>동영상에서 원하는 장면을 골라 1080×1920 세로형 쇼츠·릴스 썸네일 JPG로 저장하세요. 파일은 서버에 올리지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>쇼핑몰 상품사진 등록 전 7단계 체크리스트</title>
+    <link>https://pixelhanbang.com/shopping-photo-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/shopping-photo-guide.html</guid>
+    <description>온라인 의류 쇼핑몰 운영 경험을 바탕으로 상품사진 원본 보관부터 비율, 크기, 용량, 파일명, 모바일 확인까지 7단계로 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 크기 변경 - 여러 이미지 픽셀 일괄 변환</title>
+    <link>https://pixelhanbang.com/resize.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/resize.html</guid>
+    <description>JPG, PNG, WebP 사진의 가로 세로 픽셀을 무료로 변경하세요. 최대 30장 일괄 처리와 ZIP 저장을 지원합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>배경 없애기·배경색 바꾸기 - AI로 옷·물건만 남기기</title>
+    <link>https://pixelhanbang.com/remove-bg.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/remove-bg.html</guid>
+    <description>AI가 사진 속 옷, 사람, 물건만 남기고 배경을 없애 투명 PNG로 저장하거나, 흰색 등 원하는 색(색 코드 입력 가능)으로 배경을 바꿔 줍니다. 사진은 서버에 올리지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>JPG·PNG·WebP·HEIC 차이와 선택법</title>
+    <link>https://pixelhanbang.com/photo-format-guide.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/photo-format-guide.html</guid>
+    <description>사진 품질, 투명 배경, 파일 용량과 호환성을 기준으로 JPG, PNG, WebP, HEIC 중 어떤 형식을 선택할지 쉽게 정리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 캐릭터·로고 만들기 - AI 배경 제거와 선명한 색면</title>
+    <link>https://pixelhanbang.com/mono-logo.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/mono-logo.html</guid>
+    <description>AI가 사진 속 사람·동물·사물을 배경에서 분리하고 선명한 3~5가지 색면의 캐릭터나 단색 로고 PNG로 만들어 드립니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>HEIC JPG 변환 - 아이폰 사진 일괄 변환</title>
+    <link>https://pixelhanbang.com/heic-jpg.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/heic-jpg.html</guid>
+    <description>아이폰 HEIC·HEIF 사진을 JPG로 한꺼번에 변환하고 ZIP으로 저장하세요. 사진은 서버에 전송하지 않고 기기 안에서 처리합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>인스타 사진 3분할 9분할 - 피드 그리드 만들기</title>
+    <link>https://pixelhanbang.com/grid.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/grid.html</guid>
+    <description>사진 한 장을 인스타그램 피드용 3장 또는 9장으로 나누세요. 새 세로형 프로필 격자에 맞는 3:4 조각과 정사각형 조각을 고를 수 있고, 결과는 번호가 붙은 ZIP 파일로 저장됩니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>JPG PNG WebP 변환 - 무료 이미지 형식 변환</title>
+    <link>https://pixelhanbang.com/convert.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/convert.html</guid>
+    <description>JPG, PNG, WebP 이미지를 원하는 형식으로 빠르게 변환하세요. 여러 장 일괄 변환과 ZIP 저장을 지원합니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>사진 용량 줄이기 - JPG·PNG·WebP 일괄 압축</title>
+    <link>https://pixelhanbang.com/compress.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/compress.html</guid>
+    <description>사진 화질을 직접 조절하며 JPG, PNG, WebP 이미지 용량을 무료로 줄이세요. 파일은 서버에 업로드되지 않습니다.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+  <item>
+    <title>원형 프로필 사진 만들기 - 무료 동그라미 자르기</title>
+    <link>https://pixelhanbang.com/circle-profile.html</link>
+    <guid isPermaLink="true">https://pixelhanbang.com/circle-profile.html</guid>
+    <description>사진을 직접 움직이고 확대·축소해 원 안에 맞춘 뒤, 빈 공간을 사진 배경색·투명·흰색으로 채워 원형 프로필 PNG를 만드세요.</description>
+    <pubDate>Fri, 16 Oct 2026 14:20:18 +0900</pubDate>
+  </item>
+</channel>
+</rss>
