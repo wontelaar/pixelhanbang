@@ -2,11 +2,11 @@
   "use strict";
 
   const MAX_FILES = 30;
-  const MAX_STEP = 5;
+  const MAX_STEP = 10;
   const PREVIEW_LONG = 1080;
-  // 한 단계마다 감마를 이만큼 곱한다. 밝게(+)는 감마가 1보다 작아지고 어둡게(−)는 커진다.
+  // 한 단계마다 감마를 이만큼 곱한다. 처음 5단계였던 것을 같은 끝 밝기 그대로 반씩 쪼갰다(0.88의 제곱근). 밝게(+)는 감마가 1보다 작아지고 어둡게(−)는 커진다.
   // 더하기 방식과 달리 흰 배경·하늘처럼 이미 밝은 곳은 하얗게 날아가지 않고 중간 톤 위주로 바뀐다.
-  const GAMMA_PER_STEP = 0.88;
+  const GAMMA_PER_STEP = Math.sqrt(0.88);
   const input = document.querySelector("#fileInput");
   const dropzone = document.querySelector("#dropzone");
   const chooseButton = document.querySelector("#chooseButton");
