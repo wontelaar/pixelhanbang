@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-74TXEK2LQF"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-74TXEK2LQF');</script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기울어진 사진 맞추기 - 사진 수평·각도 조금씩 돌려 바로잡기 | 픽셀한방</title>
+  <meta name="description" content="살짝 기울어진 사진을 격자선에 맞춰 0.1°씩 돌려 수평을 맞추세요. 돌리면서 생긴 빈 모서리는 자동으로 잘라내거나 흰색·투명으로 채울 수 있어요.">
+  <link rel="canonical" href="https://pixelhanbang.com/straighten.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="straighten">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">기울어진 사진 맞추기</span>
+      <h1>살짝 기울어진 사진, 수평 맞추기</h1>
+      <p class="lead">격자선을 기준으로 사진을 조금씩 돌려 바닥선이나 상품 모서리를 똑바로 맞추세요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="기울어진 사진 맞추기 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>기울기를 맞출 사진을 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 한 장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp">
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+
+        <div id="straightenEditorWrap" class="profile-editor-wrap">
+          <div id="straightenStage" class="profile-stage straighten-stage" role="application" tabindex="0" aria-label="사진 기울기 조절 영역">
+            <canvas id="straightenCanvas" width="720" height="720"></canvas>
+          </div>
+          <p class="profile-help">사진 위를 좌우로 끌면 조금씩 돌아가요. 키보드 ←→는 0.1°, Shift와 함께 누르면 1°씩 돌아가요.</p>
+        </div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>기울기 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="angle">기울기</label>
+          <div class="range-row">
+            <input id="angle" type="range" min="-45" max="45" step="0.1" value="0" aria-label="사진 기울기" disabled>
+            <span id="angleValue" class="range-value">0.0°</span>
+          </div>
+          <div class="inline-actions angle-steps">
+            <button class="button button-ghost" type="button" data-step="-1" aria-label="왼쪽으로 1도" disabled>↺ 1°</button>
+            <button class="button button-ghost" type="button" data-step="-0.1" aria-label="왼쪽으로 0.1도" disabled>↺ 0.1°</button>
+            <button class="button button-ghost" type="button" data-step="0.1" aria-label="오른쪽으로 0.1도" disabled>0.1° ↻</button>
+            <button class="button button-ghost" type="button" data-step="1" aria-label="오른쪽으로 1도" disabled>1° ↻</button>
+          </div>
+          <div class="inline-actions"><button id="resetButton" class="button button-ghost" type="button" disabled>기울기 0°로</button></div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">90° 회전</span>
+          <div class="inline-actions">
+            <button id="rotateLeftButton" class="button button-ghost" type="button" disabled>왼쪽으로 90°</button>
+            <button id="rotateRightButton" class="button button-ghost" type="button" disabled>오른쪽으로 90°</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="edge">돌리면서 생긴 빈 모서리</label>
+          <select id="edge">
+            <option value="crop" selected>잘라내기 · 사진만 꽉 차게</option>
+            <option value="white">흰색으로 채우기 · 원본 크기 유지</option>
+            <option value="transparent">투명하게 두기 · PNG·WebP</option>
+          </select>
+          <p id="sizeNote" class="setting-hint"></p>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="format">저장 형식</label>
+          <select id="format">
+            <option value="jpg" selected>JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>기울기 맞춰 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+    <section class="content-section"><h2>기울어진 사진 맞추는 방법</h2><ol class="steps"><li>기울기를 맞출 사진 한 장을 선택하세요.</li><li>사진 속에서 원래 수평이거나 수직이어야 하는 선을 하나 고르세요. 바닥과 벽이 만나는 선, 테이블 모서리, 상품 상자의 옆면, 문틀 같은 선이 좋습니다.</li><li>슬라이더나 0.1° 버튼, 또는 사진을 좌우로 끌어서 그 선이 격자선과 나란해질 때까지 돌리세요.</li><li>빈 모서리 처리 방법과 저장 형식을 고르고 ‘기울기 맞춰 저장’을 누르세요.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>바닥에 놓고 찍은 상품사진이 한쪽으로 살짝 기울어 보일 때</li><li>옷걸이에 걸어 찍은 옷이나 벽에 건 액자가 비뚤어 보일 때</li><li>풍경 사진의 수평선이나 건물 벽이 기울어진 채로 찍혔을 때</li><li>서류·영수증을 비스듬히 찍어 글자 줄이 기울어 보일 때</li><li>옆으로 누운 사진을 90°로 바로 세워야 할 때</li></ul></section>
+    <section class="content-section"><h2>빈 모서리는 어떻게 처리하나요?</h2><p>사진을 비스듬히 돌리면 네 모서리에 사진이 없는 빈 삼각형이 생깁니다. ‘잘라내기’를 고르면 빈 곳이 보이지 않을 만큼만 가장자리를 잘라 원래 비율 그대로 저장합니다. 많이 돌릴수록 잘려 나가는 가장자리가 커지므로, 상품이 사진 끝에 붙어 있다면 각도를 조금만 돌리거나 ‘흰색으로 채우기’를 고르세요. 흰색 채우기는 원본 크기를 그대로 유지하고 모서리만 흰색으로 채웁니다. 배경을 없앤 사진처럼 투명함을 살려야 하면 ‘투명하게 두기’를 고르고 PNG나 WebP로 저장하세요.</p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>각도는 대부분 1~3° 안에서 맞춰집니다. 너무 많이 돌리면 잘려 나가는 부분이 커지니, 큰 기울기는 90° 회전으로 먼저 방향을 바로 세운 뒤 미세 조정하세요.</li><li>원근 때문에 생긴 비틀림(위가 좁고 아래가 넓어 보이는 사진)은 회전만으로 바로잡히지 않습니다. 이런 사진은 촬영할 때 휴대폰을 상품과 평행하게 들어 주는 것이 가장 확실합니다.</li><li>결과는 새로 저장한 파일이라 촬영 위치 같은 사진 정보(EXIF)는 담기지 않습니다.</li></ul></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>돌리면 화질이 떨어지나요?</summary><p>원래 픽셀 크기 그대로 돌려 저장하므로 크기를 줄이거나 늘리지 않습니다. 다만 비스듬히 돌린 사진은 픽셀을 새로 배치하는 과정이 있어 아주 가는 선은 미세하게 부드러워질 수 있습니다. 같은 사진을 여러 번 돌려 저장하기보다 한 번에 각도를 맞추는 것이 좋습니다.</p></details><details><summary>원하는 비율로 자르고도 싶어요</summary><p>기울기를 맞춘 뒤 아래 ‘지금 사진 그대로 이어서 편집’에서 자르기를 고르면, 저장하지 않고 바로 자르기 도구로 넘어갑니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 기울기를 맞춘 사진만 새 파일로 저장합니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="iphone-product-photo-guide.html">아이폰으로 상품사진 찍기</a><a href="shopping-photo-guide.html">상품사진 등록 전 점검</a><a href="white-background-guide.html">흰 배경 상품사진</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="straighten.js"></script>
+</body>
+</html>

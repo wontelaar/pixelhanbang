@@ -862,3 +862,6 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .handoff-row { display: flex; gap: 8px; }
 .handoff-row select { flex: 1; min-width: 0; }
 .handoff-row .button { flex: none; min-height: 40px; padding: 8px 14px; }
+
+.angle-steps { flex-wrap: wrap; }
+.angle-steps .button { flex: 1 1 0; min-width: 64px; }

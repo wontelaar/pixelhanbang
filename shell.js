@@ -7,6 +7,7 @@
     ["convert", "convert.html", "형식 변환"],
     ["heic", "heic-jpg.html", "HEIC→JPG"],
     ["crop", "crop.html", "자르기"],
+    ["straighten", "straighten.html", "기울기 맞추기"],
     ["square", "square.html", "정사각형"],
     ["stitch", "stitch.html", "이어붙이기"],
     ["split", "split.html", "긴 이미지 나누기"],
@@ -48,6 +49,7 @@
       target: "500KB 이하처럼 정한 용량에 맞추기",
       convert: "JPG·PNG·WebP로 바꾸기",
       crop: "1:1·4:5·9:16·증명사진 비율로 자르기",
+      straighten: "기울어진 사진을 0.1°씩 돌려 수평 맞추기",
       "remove-bg": "배경 투명하게, 원하는 색으로 바꾸기",
       "tag-remove": "옷 목 택·라벨을 AI로 지우기",
       "hanger-remove": "옷걸이를 자동으로 찾아 AI로 지우기",
@@ -74,7 +76,7 @@
 
   // 지금 편집한 사진을 저장하지 않고 다른 도구로 바로 넘긴다. 사진은 이 브라우저(IndexedDB)에 잠깐 담았다가
   // 다음 도구가 열리면 꺼내서 지운다. 서버로는 보내지 않는다.
-  const handoffTools = ["remove-bg", "hanger-remove", "tag-remove", "crop", "mosaic", "watermark", "resize", "compress", "square", "convert"];
+  const handoffTools = ["remove-bg", "hanger-remove", "tag-remove", "crop", "straighten", "mosaic", "watermark", "resize", "compress", "square", "convert"];
   const openStore = () => new Promise((resolve, reject) => {
     const request = indexedDB.open("pixelhanbang-handoff", 1);
     request.onupgradeneeded = () => request.result.createObjectStore("photo");
