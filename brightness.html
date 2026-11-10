@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7356608368191905" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-74TXEK2LQF"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-74TXEK2LQF');</script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사진 밝기 조절 - 여러 장 한 번에 밝게·어둡게 | 픽셀한방</title>
+  <meta name="description" content="사진 여러 장을 한 번에 올려 밝게 5단계, 어둡게 5단계 중 원하는 단계로 똑같이 맞추세요. 흰 배경이 하얗게 날아가지 않도록 중간 톤 위주로 조절합니다.">
+  <link rel="canonical" href="https://pixelhanbang.com/brightness.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tool="brightness">
+  <header id="siteHeader"></header>
+  <main class="page-shell">
+    <section class="intro">
+      <span class="eyebrow">사진 밝기 조절</span>
+      <h1>여러 장을 한 번에, 밝기 맞추기</h1>
+      <p class="lead">어둡게 5단계부터 밝게 5단계까지 고르면 올린 사진 모두에 똑같이 적용돼요.</p>
+      <div class="privacy-note">사진을 서버에 올리지 않고 기기 안에서 처리해요</div>
+    </section>
+
+    <section class="workspace" aria-label="사진 밝기 조절 도구">
+      <div class="panel upload-panel">
+        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div>
+            <div class="drop-icon" aria-hidden="true">＋</div>
+            <strong>밝기를 맞출 사진을 선택하세요</strong>
+            <p>JPG, PNG, WebP · 장당 25MB · 최대 30장</p>
+            <button id="chooseButton" class="button button-secondary" type="button">사진 선택</button>
+            <input id="fileInput" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          </div>
+        </div>
+
+        <div id="previewWrap" class="profile-editor-wrap">
+          <div class="brightness-preview">
+            <canvas id="previewCanvas" width="1080" height="720" aria-label="밝기 미리보기"></canvas>
+          </div>
+          <div class="brightness-preview-bar">
+            <span id="previewName" class="file-meta"></span>
+            <button id="compareButton" class="button button-ghost" type="button" disabled>누르고 있으면 원본 보기</button>
+          </div>
+        </div>
+        <div id="fileList" class="file-list" aria-live="polite"></div>
+      </div>
+
+      <aside class="panel settings-panel">
+        <h2>밝기 설정</h2>
+        <div class="setting-group">
+          <label class="setting-label" for="step">밝기 단계</label>
+          <div class="step-control">
+            <button id="darkerButton" class="button button-ghost" type="button" aria-label="한 단계 어둡게" disabled>− 어둡게</button>
+            <strong id="stepValue" class="step-value">원본</strong>
+            <button id="brighterButton" class="button button-ghost" type="button" aria-label="한 단계 밝게" disabled>밝게 +</button>
+          </div>
+          <input id="step" class="step-range" type="range" min="-5" max="5" step="1" value="0" list="stepTicks" aria-label="밝기 단계" disabled>
+          <datalist id="stepTicks"><option value="-5"></option><option value="-4"></option><option value="-3"></option><option value="-2"></option><option value="-1"></option><option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option></datalist>
+          <div class="step-scale" aria-hidden="true"><span>어둡게 5</span><span>원본</span><span>밝게 5</span></div>
+          <div class="inline-actions"><button id="resetButton" class="button button-ghost" type="button" disabled>원본 밝기로</button></div>
+          <p class="setting-hint">목록에서 사진을 누르면 그 사진으로 미리볼 수 있어요. 고른 단계는 모든 사진에 똑같이 적용돼요.</p>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="format">저장 형식</label>
+          <select id="format">
+            <option value="original" selected>원래 형식 그대로</option>
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>
+            <option value="webp">WebP</option>
+          </select>
+        </div>
+        <button id="processButton" class="button button-primary button-wide" type="button" disabled>밝기 맞춰 저장</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </aside>
+    </section>
+
+    <nav data-tool-links aria-label="다른 사진 도구"></nav>
+    <section class="content-section"><h2>사진 밝기 조절 사용법</h2><ol class="steps"><li>밝기를 맞출 사진을 한 장 또는 여러 장 선택하세요. 최대 30장까지 한 번에 올릴 수 있습니다.</li><li>‘밝게 +’나 ‘− 어둡게’를 눌러 단계를 고르세요. 미리보기에서 바로 확인할 수 있고, ‘원본 보기’를 누르고 있으면 바꾸기 전 사진과 비교됩니다.</li><li>목록에서 다른 사진을 눌러 같은 단계가 그 사진에도 어울리는지 확인하세요.</li><li>‘밝기 맞춰 저장’을 누르면 한 장은 사진 파일로, 여러 장은 ZIP 파일 하나로 저장됩니다.</li></ol></section>
+    <section class="content-section"><h2>이럴 때 쓰면 좋아요</h2><ul><li>실내에서 찍은 상품사진이 전체적으로 어둡게 나왔을 때</li><li>같은 날 찍은 사진 여러 장을 똑같은 정도로 한 번에 밝히고 싶을 때</li><li>햇빛이 강해 사진이 너무 밝게 찍혀 색이 옅어 보일 때</li><li>블로그나 상세페이지에 올리기 전에 사진들의 밝기를 비슷하게 맞추고 싶을 때</li></ul></section>
+    <section class="content-section"><h2>밝게 해도 흰 배경이 날아가지 않는 이유</h2><p>사진 전체에 같은 값을 더해 밝히면, 원래 밝던 흰 배경이나 하늘은 금방 완전한 흰색이 되어 무늬와 결이 사라집니다. 픽셀한방은 아주 어두운 곳과 아주 밝은 곳은 거의 그대로 두고 중간 밝기를 위주로 끌어올리거나 내리는 방식(감마 조절)을 씁니다. 그래서 한두 단계 밝혀도 흰 배경의 질감이나 밝은 옷의 결이 비교적 잘 남습니다.</p><p>단계가 올라갈수록 변화가 커지므로, 상품사진은 1~2단계부터 확인해 보는 것을 권장합니다. 색이 실제와 달라 보이면 교환·반품 문의로 이어질 수 있어, 원본 보기로 비교하면서 실제 상품 색에 가깝게 맞추는 것이 좋습니다.</p><p class="inline-tools"><a href="product-color-accuracy-guide.html">상품 색상이 실제와 다를 때</a><a href="white-background-guide.html">흰 배경 상품사진</a></p></section>
+    <section class="content-section"><h2>주의할 점</h2><ul><li>모든 사진에 같은 단계가 적용됩니다. 사진마다 밝기를 다르게 하려면 비슷한 사진끼리 나눠서 작업하세요.</li><li>아주 어둡게 찍힌 사진을 크게 밝히면 어두운 부분의 자글자글한 노이즈가 함께 드러날 수 있습니다.</li><li>JPG로 저장하면 투명한 부분은 흰색으로 채워집니다. 배경을 없앤 사진은 ‘원래 형식 그대로’나 PNG를 고르세요.</li><li>결과는 새로 저장한 파일이라 촬영 위치 같은 사진 정보(EXIF)는 담기지 않습니다.</li></ul></section>
+    <section class="content-section"><h2>자주 묻는 질문</h2><div class="faq"><details><summary>한 단계는 얼마나 바뀌나요?</summary><p>중간 밝기의 회색을 기준으로 한 단계마다 대략 눈에 띌 만큼 밝아지거나 어두워지도록 정했습니다. 다섯 단계까지 올리면 어두운 실내 사진도 꽤 환해집니다.</p></details><details><summary>원본 사진이 바뀌나요?</summary><p>아니요. 원본은 그대로 두고 밝기를 바꾼 사진만 새 파일로 저장합니다. 파일 이름 끝에 bright2, dark1처럼 단계가 붙습니다.</p></details><details><summary>한 장만 다른 도구로 이어서 편집할 수 있나요?</summary><p>네. 목록에서 사진을 고른 뒤 아래 ‘지금 사진 그대로 이어서 편집’에서 도구를 고르면, 미리보는 사진에 지금 단계를 적용해 바로 넘깁니다.</p></details></div></section>
+    <section class="content-section"><h2>함께 보면 좋은 가이드</h2><p class="inline-tools"><a href="iphone-product-photo-guide.html">아이폰으로 상품사진 찍기</a><a href="shopping-photo-guide.html">상품사진 등록 전 점검</a><a href="smartstore-image-guide.html">스마트스토어 이미지 규격</a></p></section>
+  </main>
+  <footer id="siteFooter"></footer><script src="shell.js"></script><script src="brightness.js"></script>
+</body>
+</html>

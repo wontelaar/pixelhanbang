@@ -866,3 +866,15 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .angle-steps { flex-wrap: wrap; }
 .angle-steps .button { flex: 1 1 0; min-width: 64px; }
 .dropzone[hidden] { display: none; }
+
+/* 밝기 조절: 미리보기와 단계 조절 */
+.brightness-preview { border-radius: 17px; overflow: hidden; background: var(--wash); }
+.brightness-preview canvas { display: block; width: 100%; height: auto; max-height: 75vh; object-fit: contain; }
+.brightness-preview-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.brightness-preview-bar .file-meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brightness-preview-bar .button { flex: none; min-height: 40px; padding: 8px 12px; font-size: .84rem; touch-action: none; user-select: none; }
+.step-control { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.step-control .button { min-height: 44px; }
+.step-value { min-width: 92px; text-align: center; font-size: 1rem; }
+.step-range { width: 100%; margin-top: 12px; }
+.step-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: .76rem; }
